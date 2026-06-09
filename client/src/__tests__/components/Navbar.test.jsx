@@ -1,0 +1,29 @@
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import Navbar from "../../components/layout/Navbar";
+
+function renderWithRouter(ui) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+}
+
+describe("Navbar", () => {
+  it("renders the logo", () => {
+    renderWithRouter(<Navbar />);
+    expect(screen.getByText("LOCAL")).toBeInTheDocument();
+    expect(screen.getByText("LINK")).toBeInTheDocument();
+  });
+
+  it("renders navigation links", () => {
+    renderWithRouter(<Navbar />);
+    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Browse")).toBeInTheDocument();
+    expect(screen.getByText("Schedule")).toBeInTheDocument();
+    expect(screen.getByText("My List")).toBeInTheDocument();
+  });
+
+  it("renders the mobile menu toggle", () => {
+    renderWithRouter(<Navbar />);
+    expect(screen.getByLabelText("Toggle menu")).toBeInTheDocument();
+  });
+});

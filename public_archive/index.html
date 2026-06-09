@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalLink Anime</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <script src="/hls.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --bg-base: #020617;
+            --bg-glass: rgba(30, 41, 59, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #0f172a, var(--bg-base));
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background-clip: text;
+            color: transparent;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        input {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        button {
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(129, 140, 248, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(129, 140, 248, 0.5);
+        }
+
+        /* Loading */
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 500;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Results Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .anime-card {
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .anime-card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .anime-card-content {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .anime-card-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .anime-card-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Details Section */
+        #detailsSection {
+            padding: 40px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border-glass);
+            box-shadow: none;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.05);
+            box-shadow: none;
+        }
+
+        .details-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .details-header img {
+            width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .details-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .details-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .details-info p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .episode-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-glass);
+            padding: 16px;
+            text-align: left;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: none;
+        }
+
+        .episode-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.15);
+        }
+
+        .episode-number {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .episode-title {
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Player Section */
+        #playerSection {
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-glass);
+        }
+
+        video, iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            border: none;
+        }
+
+        #playingInfo {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+        
+        .error-msg {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="glass">
+            <h1>✨ Anime Streamer</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for anime (e.g. Naruto)..." onkeypress="handleKeyPress(event)">
+                <button onclick="searchAnime()">Search</button>
+            </div>
+        </header>
+
+        <div id="loader">Loading... Please wait.</div>
+
+        <main>
+            <!-- Results Section -->
+            <section id="resultsSection" class="grid"></section>
+
+            <!-- Details & Episodes Section -->
+            <section id="detailsSection" class="hidden glass">
+                <button onclick="backToResults()" class="back-btn">← Back to Search</button>
+                <div id="animeInfo" class="details-header"></div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Select Provider:</h4>
+                    <div id="providerList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--text-main); font-size: 1.8rem; margin: 0;">Episodes</h3>
+                    <div id="audioToggle" class="hidden" style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-glass); border-radius: 8px; overflow: hidden; display: flex;">
+                        <button id="btn-sub" onclick="setAudioType('sub')" style="border-radius: 0; padding: 8px 16px; font-size: 0.9rem; background: var(--primary); color: #000; box-shadow: none;">SUB</button>
+                        <button id="btn-dub" onclick="setAudioType('dub')" style="border-radius: 0; padding: 8px 16px; font-size: 0.9rem; background: transparent; color: var(--text-muted); box-shadow: none;">DUB</button>
+                    </div>
+                </div>
+                <div id="episodesList" class="episodes-grid"></div>
+            </section>
+
+            <!-- Video Player Section -->
+            <section id="playerSection" class="hidden glass">
+                <button onclick="backToDetails()" class="back-btn">← Back to Episodes</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="playingInfo" style="margin: 0;">Playing...</h3>
+                    <select id="qualitySelect" class="hidden" onchange="changeQuality(this.value)" style="padding: 8px 16px; background: rgba(15, 23, 42, 0.8); color: white; border: 1px solid var(--border-glass); border-radius: 8px; outline: none; cursor: pointer;"></select>
+                </div>
+                <div id="playerError" class="hidden"></div>
+                <div class="video-wrapper">
+                    <video id="videoPlayer" class="hidden" controls playsinline></video>
+                </div>
+                <p style="text-align: center; color: var(--text-muted); margin-top: 15px; font-size: 0.9rem;">
+                    If the video is blank or infinite loading, your browser's adblocker or ISP might be blocking the video host (like ok.ru). 
+                    <strong style="color: var(--primary); cursor: pointer;" onclick="backToDetails()">Try selecting a different Provider (like KIWI or BEE).</strong>
+                </p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let currentResults = [];
+        let currentAnime = null;
+        let hls = null;
+        let currentProvidersData = null;
+        let currentProviderName = null;
+        let currentAudioType = 'sub';
+
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+        }
+
+        function hideAllSections() {
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('detailsSection').classList.add('hidden');
+            document.getElementById('playerSection').classList.add('hidden');
+        }
+
+        function setAudioType(type) {
+            currentAudioType = type;
+            document.getElementById('btn-sub').style.background = type === 'sub' ? 'var(--primary)' : 'transparent';
+            document.getElementById('btn-sub').style.color = type === 'sub' ? '#000' : 'var(--text-muted)';
+            document.getElementById('btn-dub').style.background = type === 'dub' ? 'var(--primary)' : 'transparent';
+            document.getElementById('btn-dub').style.color = type === 'dub' ? '#000' : 'var(--text-muted)';
+            if (currentProviderName) {
+                renderEpisodes();
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                searchAnime();
+            }
+        }
+
+        async function searchAnime() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            hideAllSections();
+            showLoader(true);
+
+            try {
+                const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                showLoader(false);
+                currentResults = data.results || [];
+                displayResults(currentResults);
+            } catch (err) {
+                showLoader(false);
+                document.getElementById('resultsSection').classList.remove('hidden');
+                document.getElementById('resultsSection').innerHTML = `<div class="error-msg">Error searching anime: ${err.message}</div>`;
+            }
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('resultsSection');
+            container.classList.remove('hidden');
+
+            if (results.length === 0) {
+                container.innerHTML = '<div class="no-results">No anime found. Try another search!</div>';
+                return;
+            }
+
+            container.innerHTML = results.map(anime => {
+                const title = anime.title.english || anime.title.romaji || anime.title.native;
+                const cover = anime.coverImage?.large || 'https://via.placeholder.com/220x320?text=No+Image';
+                return `
+                    <div class="anime-card glass" onclick="selectAnime(${anime.id})">
+                        <img src="${cover}" alt="${title}" loading="lazy">
+                        <div class="anime-card-content">
+                            <h3>${title}</h3>
+                            <p>${anime.format || 'Unknown'} • ${anime.status || 'Unknown'} • ${anime.episodes ? anime.episodes + ' Eps' : '?'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function selectAnime(anilistId) {
+            currentAnime = currentResults.find(a => a.id === anilistId);
+            if (!currentAnime) return;
+
+            hideAllSections();
+            document.getElementById('detailsSection').classList.remove('hidden');
+
+            const title = currentAnime.title.english || currentAnime.title.romaji;
+            const cover = currentAnime.coverImage?.large || '';
+            const description = currentAnime.description || 'No description available.';
+
+            document.getElementById('animeInfo').innerHTML = `
+                <img src="${cover}" alt="${title}">
+                <div class="details-info">
+                    <h2>${title}</h2>
+                    <p><strong>Status:</strong> ${currentAnime.status || 'Unknown'}</p>
+                    <p><strong>Episodes:</strong> ${currentAnime.episodes || 'Unknown'}</p>
+                    <p><strong>Score:</strong> ${currentAnime.averageScore ? currentAnime.averageScore + '%' : 'N/A'}</p>
+                </div>
+            `;
+
+            const epContainer = document.getElementById('episodesList');
+            const provContainer = document.getElementById('providerList');
+            epContainer.innerHTML = '<div style="color: var(--primary);">Loading data...</div>';
+            provContainer.innerHTML = '';
+
+            try {
+                const res = await fetch(`/api/episodes/${anilistId}`);
+                const data = await res.json();
+
+                currentProvidersData = data.providers;
+                
+                if (currentProvidersData && Object.keys(currentProvidersData).length > 0) {
+                    const providerNames = Object.keys(currentProvidersData);
+                    
+                    provContainer.innerHTML = providerNames.map(name => `
+                        <button class="back-btn" id="prov-btn-${name}" style="margin-bottom:0;" onclick="selectProvider('${name}')">
+                            ${name.toUpperCase()}
+                        </button>
+                    `).join('');
+
+                    let defaultProv = providerNames[0];
+                    for (const name of providerNames) {
+                        if (currentProvidersData[name].episodes && currentProvidersData[name].episodes.sub) {
+                            defaultProv = name;
+                            break;
+                        }
+                    }
+                    selectProvider(defaultProv);
+                } else {
+                    epContainer.innerHTML = '<div class="no-results">No providers found.</div>';
+                }
+            } catch (err) {
+                epContainer.innerHTML = `<div class="error-msg">Failed to load data: ${err.message}</div>`;
+            }
+        }
+
+        function selectProvider(name) {
+            currentProviderName = name;
+            
+            const provContainer = document.getElementById('providerList');
+            const btns = provContainer.querySelectorAll('button');
+            btns.forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.borderColor = 'var(--border-glass)';
+            });
+            const selectedBtn = document.getElementById(`prov-btn-${name}`);
+            if (selectedBtn) {
+                selectedBtn.style.background = 'rgba(56, 189, 248, 0.2)';
+                selectedBtn.style.borderColor = 'var(--primary)';
+            }
+            
+            const providerData = currentProvidersData[name];
+            const hasSub = providerData.episodes && providerData.episodes.sub && providerData.episodes.sub.length > 0;
+            const hasDub = providerData.episodes && providerData.episodes.dub && providerData.episodes.dub.length > 0;
+            
+            const audioToggle = document.getElementById('audioToggle');
+            if (hasSub && hasDub) {
+                audioToggle.classList.remove('hidden');
+                document.getElementById('btn-dub').style.display = 'block';
+                document.getElementById('btn-sub').style.display = 'block';
+            } else {
+                audioToggle.classList.add('hidden');
+                // Auto switch if the current type isn't available
+                if (currentAudioType === 'sub' && !hasSub && hasDub) {
+                    setAudioType('dub');
+                    return; // setAudioType calls renderEpisodes
+                }
+                if (currentAudioType === 'dub' && !hasDub && hasSub) {
+                    setAudioType('sub');
+                    return; // setAudioType calls renderEpisodes
+                }
+            }
+
+            renderEpisodes();
+        }
+
+        function renderEpisodes() {
+            const epContainer = document.getElementById('episodesList');
+            if (!currentProviderName || !currentProvidersData[currentProviderName]) return;
+            
+            const providerData = currentProvidersData[currentProviderName];
+            
+            let episodes = [];
+            if (providerData.episodes && providerData.episodes[currentAudioType]) {
+                episodes = providerData.episodes[currentAudioType];
+            }
+            
+            if (episodes.length > 0) {
+                epContainer.innerHTML = episodes.map(ep => `
+                    <button class="episode-btn" onclick="playEpisode('${ep.id}', ${ep.number}, '${(ep.title || '').replace(/'/g, "\\'")}')">
+                        <span class="episode-number">Episode ${ep.number}</span>
+                        <span class="episode-title">${ep.title || 'Watch Now'}</span>
+                    </button>
+                `).join('');
+            } else {
+                epContainer.innerHTML = `<div class="no-results">No ${currentAudioType.toUpperCase()} episodes available from this provider.</div>`;
+            }
+        }
+
+        function backToResults() {
+            hideAllSections();
+            document.getElementById('resultsSection').classList.remove('hidden');
+        }
+
+        function changeQuality(level) {
+            if (hls) {
+                hls.currentLevel = parseInt(level);
+            } else if (window.currentStreamList) {
+                const video = document.getElementById('videoPlayer');
+                const currentTime = video.currentTime;
+                const isPaused = video.paused;
+                
+                const selectedStream = window.currentStreamList.find(s => s.quality === level);
+                if (selectedStream) {
+                    let proxyUrl = '/proxy?url=' + encodeURIComponent(selectedStream.url);
+                    if (selectedStream.referer) proxyUrl += '&referer=' + encodeURIComponent(selectedStream.referer);
+                    video.src = proxyUrl;
+                    video.currentTime = currentTime;
+                    if (!isPaused) {
+                        video.play().catch(e => console.warn(e));
+                    }
+                }
+            }
+        }
+
+        function backToDetails() {
+            hideAllSections();
+            document.getElementById('detailsSection').classList.remove('hidden');
+            document.getElementById('qualitySelect').classList.add('hidden');
+            
+            const video = document.getElementById('videoPlayer');
+            
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+            window.currentStreamList = null;
+            
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        }
+
+        async function playEpisode(watchId, epNumber, epTitle) {
+            hideAllSections();
+            const playerSection = document.getElementById('playerSection');
+            playerSection.classList.remove('hidden');
+            
+            document.getElementById('qualitySelect').classList.add('hidden');
+            document.getElementById('qualitySelect').innerHTML = '';
+            
+            const titleDisplay = epTitle ? `Episode ${epNumber}: ${epTitle}` : `Episode ${epNumber}`;
+            document.getElementById('playingInfo').innerText = `Loading ${titleDisplay}...`;
+            
+            const errorDiv = document.getElementById('playerError');
+            errorDiv.classList.add('hidden');
+            
+            const video = document.getElementById('videoPlayer');
+            video.classList.add('hidden');
+            
+            try {
+                // watchId already contains "watch/" so we just append it normally
+                const res = await fetch(`/api/${watchId}`);
+                const data = await res.json();
+                
+                let streamsList = [];
+                if (data.streams) {
+                    streamsList = data.streams;
+                } else {
+                    for (let key in data) {
+                        if (data[key] && data[key].streams) {
+                            streamsList = data[key].streams;
+                            break;
+                        }
+                    }
+                }
+                
+                if (streamsList && streamsList.length > 0) {
+                    document.getElementById('playingInfo').innerText = `Playing: ${titleDisplay}`;
+
+                    let streamUrl = streamsList[0].url;
+                    let streamType = streamsList[0].type || '';
+                    const streamReferer = streamsList[0].referer || '';
+                    
+                    let hlsStreams = streamsList.filter(s => s.type === 'hls' || s.url.includes('.m3u8'));
+
+                    video.classList.remove('hidden');
+
+                    if (Hls.isSupported() && hlsStreams.length > 0) {
+                            if (hls) hls.destroy();
+                            
+                            // Generate a master playlist for hls.js to enable Adaptive Bitrate (ABR)
+                            let masterM3u8 = "#EXTM3U\n";
+                            hlsStreams.forEach(s => {
+                                let bandwidth = 5000000;
+                                let res = "1920x1080";
+                                if (s.quality === '720p') { bandwidth = 2500000; res = "1280x720"; }
+                                if (s.quality === '480p') { bandwidth = 1500000; res = "854x480"; }
+                                if (s.quality === '360p') { bandwidth = 800000; res = "640x360"; }
+                                
+                                let pUrl = window.location.origin + '/proxy?url=' + encodeURIComponent(s.url);
+                                if (s.referer) pUrl += '&referer=' + encodeURIComponent(s.referer);
+                                
+                                masterM3u8 += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${res}\n${pUrl}\n`;
+                            });
+                            
+                            const blob = new Blob([masterM3u8], { type: 'application/vnd.apple.mpegurl' });
+                            streamUrl = URL.createObjectURL(blob);
+                            
+                            hls = new Hls({
+                                maxBufferLength: 60,
+                                maxMaxBufferLength: 120,
+                                fragLoadingTimeOut: 120000,
+                                manifestLoadingTimeOut: 120000,
+                                levelLoadingTimeOut: 120000,
+                                fragLoadingMaxRetry: 10,
+                                levelLoadingMaxRetry: 10,
+                                xhrSetup: function (xhr, url) {
+                                    // The master playlist URLs are already proxied, but internal chunks need proxying
+                                    if (!url.startsWith('blob:') && !url.includes('/proxy?')) {
+                                        let proxyUrl = '/proxy?url=' + encodeURIComponent(url);
+                                        if (streamReferer) proxyUrl += '&referer=' + encodeURIComponent(streamReferer);
+                                        xhr.open('GET', proxyUrl, true);
+                                    }
+                                }
+                            });
+                            hls.loadSource(streamUrl);
+                            hls.attachMedia(video);
+                            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                                const qualitySelect = document.getElementById('qualitySelect');
+                                qualitySelect.innerHTML = '<option value="-1">Auto</option>';
+                                data.levels.forEach((level, index) => {
+                                    qualitySelect.innerHTML += `<option value="${index}">${level.height}p</option>`;
+                                });
+                                qualitySelect.classList.remove('hidden');
+                                qualitySelect.value = -1;
+
+                                const playPromise = video.play();
+                                if (playPromise !== undefined) {
+                                    playPromise.catch(e => { console.warn("Playback prevented:", e); });
+                                }
+                            });
+                            hls.on(Hls.Events.ERROR, function (event, errData) {
+                                if (errData.fatal) {
+                                    switch (errData.type) {
+                                        case Hls.ErrorTypes.NETWORK_ERROR:
+                                            console.error("fatal network error encountered, try to recover");
+                                            hls.startLoad();
+                                            break;
+                                        case Hls.ErrorTypes.MEDIA_ERROR:
+                                            console.error("fatal media error encountered, try to recover");
+                                            hls.recoverMediaError();
+                                            break;
+                                        default:
+                                            hls.destroy();
+                                            break;
+                                    }
+                                }
+                            });
+                        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                            let proxyUrl = '/proxy?url=' + encodeURIComponent(streamUrl);
+                            if (streamReferer) proxyUrl += '&referer=' + encodeURIComponent(streamReferer);
+                            video.src = proxyUrl;
+                            video.addEventListener('loadedmetadata', function() {
+                                const playPromise = video.play();
+                                if (playPromise !== undefined) {
+                                    playPromise.catch(e => { console.warn("Playback prevented:", e); });
+                                }
+                            });
+                        } else {
+                            window.currentStreamList = streamsList.filter(s => s.type !== 'hls' && !s.url.includes('.m3u8'));
+                            if (window.currentStreamList.length > 0) {
+                                const qualitySelect = document.getElementById('qualitySelect');
+                                qualitySelect.innerHTML = '';
+                                window.currentStreamList.forEach(s => {
+                                    qualitySelect.innerHTML += `<option value="${s.quality}">${s.quality}</option>`;
+                                });
+                                qualitySelect.classList.remove('hidden');
+                                qualitySelect.value = window.currentStreamList[0].quality;
+                                
+                                streamUrl = window.currentStreamList[0].url;
+                            }
+                            
+                            let proxyUrl = '/proxy?url=' + encodeURIComponent(streamUrl);
+                            if (streamReferer) proxyUrl += '&referer=' + encodeURIComponent(streamReferer);
+                            video.src = proxyUrl;
+                        }
+                } else {
+                    throw new Error("No streams found in the response.");
+                }
+            } catch (err) {
+                document.getElementById('playingInfo').innerText = `Failed to load Episode`;
+                errorDiv.innerHTML = `Error: ${err.message}`;
+                errorDiv.classList.remove('hidden');
+                errorDiv.className = 'error-msg';
+            }
+        }
+    </script>
+</body>
+</html>

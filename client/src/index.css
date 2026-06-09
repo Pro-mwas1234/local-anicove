@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  /* Netflix-inspired color palette */
+  --color-netflix-red: #E50914;
+  --color-netflix-red-hover: #B20710;
+  --color-netflix-red-active: #831008;
+
+  /* Surface colors */
+  --color-surface-deep: #161616;
+  --color-surface-base: #232323;
+  --color-surface-raised: #2D2D2D;
+  --color-surface-border: #414141;
+
+  /* Text colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A9A9A9;
+  --color-text-muted: #808080;
+
+  /* Font family */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Custom breakpoints matching Netflix design doc */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 520px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1920px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-deep);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-netflix-red);
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar for carousels but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Skeleton loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-base) 25%,
+    var(--color-surface-raised) 50%,
+    var(--color-surface-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Netflix-style gradient overlays */
+.gradient-overlay-bottom {
+  background: linear-gradient(
+    to top,
+    var(--color-surface-deep) 0%,
+    rgba(22, 22, 22, 0.7) 30%,
+    transparent 100%
+  );
+}
+
+.gradient-overlay-left {
+  background: linear-gradient(
+    to right,
+    var(--color-surface-deep) 0%,
+    rgba(22, 22, 22, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
