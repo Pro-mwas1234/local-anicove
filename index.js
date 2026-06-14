@@ -5,7 +5,6 @@ const util = require("util");
 const gunzip = util.promisify(zlib.gunzip);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Serve production build if exists
 app.use(express.static(path.join(__dirname, "client", "dist")));
