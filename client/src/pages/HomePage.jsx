@@ -4,7 +4,8 @@ import AnimeCarousel from "../components/home/AnimeCarousel";
 import { getTrending, getPopular, getRecent, getUpcoming, getSpotlight } from "../services/api";
 import { useWatchHistory } from "../hooks/useWatchHistory";
 import { Link } from "react-router-dom";
-import { getTitle, getCoverImage, formatTime } from "../utils/helpers";
+import { formatTime } from "../utils/helpers";
+import { Flame, Star, Tv, CalendarClock } from "lucide-react";
 
 export default function HomePage() {
   const [spotlight, setSpotlight] = useState([]);
@@ -97,10 +98,26 @@ export default function HomePage() {
           </div>
         )}
 
-        <AnimeCarousel title="🔥 Trending Now" anime={trending} loading={loading} />
-        <AnimeCarousel title="⭐ Most Popular" anime={popular} loading={loading} />
-        <AnimeCarousel title="📺 Recently Updated" anime={recent} loading={loading} />
-        <AnimeCarousel title="🔜 Upcoming" anime={upcoming} loading={loading} />
+        <AnimeCarousel 
+          title={<span className="flex items-center gap-2"><Flame className="text-orange-500 w-6 h-6 lg:w-7 lg:h-7" /> Trending Now</span>} 
+          anime={trending} 
+          loading={loading} 
+        />
+        <AnimeCarousel 
+          title={<span className="flex items-center gap-2"><Star className="text-yellow-400 w-6 h-6 lg:w-7 lg:h-7" /> Most Popular</span>} 
+          anime={popular} 
+          loading={loading} 
+        />
+        <AnimeCarousel 
+          title={<span className="flex items-center gap-2"><Tv className="text-blue-400 w-6 h-6 lg:w-7 lg:h-7" /> Recently Updated</span>} 
+          anime={recent} 
+          loading={loading} 
+        />
+        <AnimeCarousel 
+          title={<span className="flex items-center gap-2"><CalendarClock className="text-purple-400 w-6 h-6 lg:w-7 lg:h-7" /> Upcoming</span>} 
+          anime={upcoming} 
+          loading={loading} 
+        />
       </div>
     </div>
   );

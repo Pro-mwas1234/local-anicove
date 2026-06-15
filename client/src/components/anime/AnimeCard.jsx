@@ -27,7 +27,7 @@ export default function AnimeCard({ anime, className = "" }) {
 				{/* Score badge */}
 				{anime.averageScore && (
 					<div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-text-primary text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-						<Star className="w-3 h-3 fill-current" /> {formatScore(anime.averageScore)}
+						<Star className="w-3 h-3 fill-current text-yellow-400" /> {formatScore(anime.averageScore)}
 					</div>
 				)}
 
@@ -50,7 +50,7 @@ export default function AnimeCard({ anime, className = "" }) {
 
 			{/* Title */}
 			<div className="p-2.5 lg:p-2">
-				<h3 className="text-sm lg:text-xs font-medium text-text-primary line-clamp-2 leading-snug">
+				<h3 className="text-sm lg:text-xs font-medium text-text-primary line-clamp-2 leading-snug min-h-[2.75em]">
 					{title}
 				</h3>
 				{anime.genres && anime.genres.length > 0 && (

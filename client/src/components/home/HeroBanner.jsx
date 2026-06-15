@@ -80,7 +80,7 @@ export default function HeroBanner({ anime = [] }) {
 					{/* Meta info */}
 					<div className="flex items-center gap-3 text-sm text-text-secondary">
 						{current.averageScore && (
-							<span className="flex items-center gap-1 text-green-400 font-bold">
+							<span className="flex items-center gap-1 text-yellow-400 font-bold">
 								<Star className="w-4 h-4 fill-current" /> {(current.averageScore / 10).toFixed(1)}
 							</span>
 						)}

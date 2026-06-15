@@ -24,12 +24,14 @@ export default function AnimeCarousel({ title, anime = [], loading = false }) {
 		});
 	};
 
+	const isMobile = window.innerWidth < 768;
+
 	if (loading) {
 		return (
 			<div className="space-y-4">
 				<div className="skeleton h-7 w-48 rounded" />
 				<div className="flex gap-4">
-					{Array.from({ length: 6 }).map((_, i) => (
+					{Array.from({ length: isMobile ? 4 : 10 }).map((_, i) => (
 						<div key={i} className="shrink-0 w-40 lg:w-48">
 							<div className="skeleton rounded-lg aspect-2/3" />
 							<div className="mt-2 skeleton h-4 w-3/4 rounded" />
