@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
-import { getStreams, getEpisodes } from "../services/api";
+import { getStreams, getEpisodes, getAnimeInfo, getSkipTimes } from "../services/api";
 import VideoPlayer from "../components/player/VideoPlayer";
 import EpisodeList from "../components/anime/EpisodeList";
 import { useWatchHistory } from "../hooks/useWatchHistory";
@@ -21,6 +21,7 @@ export default function WatchPage() {
   const { updateProgress, getProgress } = useWatchHistory();
   const navigate = useNavigate();
   const [providersData, setProvidersData] = useState(null);
+  const [skipTimes, setSkipTimes] = useState(null);
 
   // Info from navigation state
   const animeState = location.state || {};
@@ -83,6 +84,47 @@ export default function WatchPage() {
       })
       .catch(() => {});
   }, [animeId, watchId]);
+
+  // Fetch AniSkip times when episode is identified
+  useEffect(() => {
+    if (!animeId) return;
+
+    let cancelled = false;
+
+    const fetchSkips = async () => {
+      try {
+        let malId = animeState.anime?.idMal;
+        if (!malId) {
+          const info = await getAnimeInfo(animeId);
+          malId = info.idMal;
+        }
+        if (!malId || cancelled) return;
+
+        let currentNumber = episodeNumber;
+        if (currentEpIndex >= 0 && allEpisodes[currentEpIndex]) {
+          currentNumber = allEpisodes[currentEpIndex].number;
+        }
+        if (currentNumber === undefined || currentNumber === null || currentNumber === "") return;
+
+        const data = await getSkipTimes(malId, currentNumber);
+        if (!cancelled) {
+          if (data && data.found) {
+            setSkipTimes(data);
+          } else {
+            setSkipTimes(null);
+          }
+        }
+      } catch (err) {
+        if (!cancelled) setSkipTimes(null);
+      }
+    };
+
+    fetchSkips();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [animeId, currentEpIndex, allEpisodes, episodeNumber, animeState.anime]);
 
   const handleTimeUpdate = useCallback(
     ({ currentTime, duration }) => {
@@ -172,8 +214,22 @@ export default function WatchPage() {
           <VideoPlayer
             streams={streamData?.streams || []}
             subtitles={streamData?.subtitles || []}
-            intro={streamData?.intro}
-            outro={streamData?.outro}
+            intro={
+              skipTimes?.results?.find((s) => s.skipType === "op" || s.skipType === "mixed-op")?.interval
+                ? {
+                    start: skipTimes.results.find((s) => s.skipType === "op" || s.skipType === "mixed-op").interval.startTime,
+                    end: skipTimes.results.find((s) => s.skipType === "op" || s.skipType === "mixed-op").interval.endTime,
+                  }
+                : streamData?.intro
+            }
+            outro={
+              skipTimes?.results?.find((s) => s.skipType === "ed" || s.skipType === "mixed-ed")?.interval
+                ? {
+                    start: skipTimes.results.find((s) => s.skipType === "ed" || s.skipType === "mixed-ed").interval.startTime,
+                    end: skipTimes.results.find((s) => s.skipType === "ed" || s.skipType === "mixed-ed").interval.endTime,
+                  }
+                : streamData?.outro
+            }
             onTimeUpdate={handleTimeUpdate}
             initialTime={initialTime}
             hasPrev={hasPrev}

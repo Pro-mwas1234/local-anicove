@@ -63,3 +63,6 @@ export const getRecommendations = (id) => fetchJSON(`/anime/${id}/recommendation
 export const getEpisodes = (anilistId) => fetchJSON(`/episodes/${anilistId}`);
 
 export const getStreams = (watchId) => fetchJSON(`/${watchId}`);
+
+// Skips
+export const getSkipTimes = (malId, episode) => fetchJSON(`/skips/${malId}/${episode}`);

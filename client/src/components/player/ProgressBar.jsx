@@ -94,6 +94,12 @@ export default function ProgressBar({
 					style={{ width: `${bufferedPercent}%` }}
 				/>
 
+				{/* Played */}
+				<div
+					className="player-progress-played"
+					style={{ width: `${playedPercent}%` }}
+				/>
+
 				{/* Intro segment marker */}
 				{introStyle && (
 					<div
@@ -111,12 +117,6 @@ export default function ProgressBar({
 						title="Outro"
 					/>
 				)}
-
-				{/* Played */}
-				<div
-					className="player-progress-played"
-					style={{ width: `${playedPercent}%` }}
-				/>
 
 				{/* Thumb */}
 				<div

@@ -755,6 +755,24 @@ app.get("/api/episodes/:anilist_id", async (req, res) => {
   }
 });
 
+app.get("/api/skips/:mal_id/:episode", async (req, res) => {
+  try {
+    const { mal_id, episode } = req.params;
+    const url = `https://api.aniskip.com/v2/skip-times/${mal_id}/${episode}?types[]=ed&types[]=op&types[]=mixed-op&types[]=mixed-ed&episodeLength=0`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return res.json({ found: false, results: [] });
+      }
+      return res.status(response.status).json({ detail: "AniSkip request failed" });
+    }
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ detail: err.message });
+  }
+});
+
 app.get("/api/sources", async (req, res) => {
   try {
     const { episodeId, provider, anilistId, category = "sub" } = req.query;
