@@ -40,7 +40,10 @@ export default function WatchPage() {
     getStreams(watchId)
       .then((data) => {
         if (!cancelled) {
-          setStreamData(data);
+          let unwrapped = data;
+          if (data && data.ssub) unwrapped = data.ssub;
+          else if (data && data.dub) unwrapped = data.dub;
+          setStreamData(unwrapped);
         }
       })
       .catch((err) => {

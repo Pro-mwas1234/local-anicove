@@ -31,14 +31,31 @@ export default function usePlayerState(videoRef, isLoading = false) {
 	const [autoSkipOutro, setAutoSkipOutro] = useState(prefs.autoSkipOutro ?? false);
 	const [playbackSpeed, setPlaybackSpeed] = useState(prefs.playbackSpeed ?? 1);
 	const [currentQuality, setCurrentQuality] = useState(-1);
+	const [subFontSize, setSubFontSize] = useState(prefs.subFontSize ?? 1);
+	const [subBackgroundOpacity, setSubBackgroundOpacity] = useState(prefs.subBackgroundOpacity ?? 0);
+	const [subEdgeStyle, setSubEdgeStyle] = useState(prefs.subEdgeStyle ?? "uniform");
+	const [subEdgeThickness, setSubEdgeThickness] = useState(prefs.subEdgeThickness ?? 1);
+	const [subPosition, setSubPosition] = useState(prefs.subPosition ?? 0);
 
 	const controlsTimer = useRef(null);
 	const containerRef = useRef(null);
 
 	// Persist preferences
 	useEffect(() => {
-		savePrefs({ volume, isMuted, autoNext, autoSkipIntro, autoSkipOutro, playbackSpeed });
-	}, [volume, isMuted, autoNext, autoSkipIntro, autoSkipOutro, playbackSpeed]);
+		savePrefs({ 
+			volume, 
+			isMuted, 
+			autoNext, 
+			autoSkipIntro, 
+			autoSkipOutro, 
+			playbackSpeed,
+			subFontSize,
+			subBackgroundOpacity,
+			subEdgeStyle,
+			subEdgeThickness,
+			subPosition
+		});
+	}, [volume, isMuted, autoNext, autoSkipIntro, autoSkipOutro, playbackSpeed, subFontSize, subBackgroundOpacity, subEdgeStyle, subEdgeThickness, subPosition]);
 
 	// Sync volume to video element
 	useEffect(() => {
@@ -155,6 +172,11 @@ export default function usePlayerState(videoRef, isLoading = false) {
 		autoSkipOutro,
 		playbackSpeed,
 		currentQuality,
+		subFontSize,
+		subBackgroundOpacity,
+		subEdgeStyle,
+		subEdgeThickness,
+		subPosition,
 		containerRef,
 
 		// Setters
@@ -165,6 +187,11 @@ export default function usePlayerState(videoRef, isLoading = false) {
 		setAutoSkipOutro,
 		setPlaybackSpeed,
 		setCurrentQuality,
+		setSubFontSize,
+		setSubBackgroundOpacity,
+		setSubEdgeStyle,
+		setSubEdgeThickness,
+		setSubPosition,
 		setShowControls,
 
 		// Actions

@@ -43,6 +43,16 @@ export default function PlayerControls({
 		setAutoSkipOutro,
 		setPlaybackSpeed,
 		setCurrentQuality,
+		subFontSize,
+		subBackgroundOpacity,
+		subEdgeStyle,
+		subEdgeThickness,
+		subPosition,
+		setSubFontSize,
+		setSubBackgroundOpacity,
+		setSubEdgeStyle,
+		setSubEdgeThickness,
+		setSubPosition,
 	} = playerState;
 
 	return (
@@ -124,6 +134,16 @@ export default function PlayerControls({
 						onAutoSkipIntroChange={setAutoSkipIntro}
 						autoSkipOutro={autoSkipOutro}
 						onAutoSkipOutroChange={setAutoSkipOutro}
+						subFontSize={subFontSize}
+						onSubFontSizeChange={setSubFontSize}
+						subBackgroundOpacity={subBackgroundOpacity}
+						onSubBackgroundOpacityChange={setSubBackgroundOpacity}
+						subEdgeStyle={subEdgeStyle}
+						onSubEdgeStyleChange={setSubEdgeStyle}
+						subEdgeThickness={subEdgeThickness}
+						onSubEdgeThicknessChange={setSubEdgeThickness}
+						subPosition={subPosition}
+						onSubPositionChange={setSubPosition}
 					/>
 
 					{/* PiP */}

@@ -864,6 +864,11 @@ app.get("/proxy", async (req, res) => {
     if (targetUrl.includes('owocdn.top') || targetUrl.includes('uwucdn.top') || targetUrl.includes('bigdreamsmalldih.site')) {
         customReferer = 'https://kwik.cx/';
     }
+    
+    // Force referer for BEE CDNs
+    if (targetUrl.includes('nekostream.site') || targetUrl.includes('ipstatp.com')) {
+        customReferer = 'https://vidtube.site/';
+    }
 
     const refererHeader = customReferer ? customReferer : new URL(targetUrl).origin + "/";
     let originHeader = "";
@@ -887,7 +892,7 @@ app.get("/proxy", async (req, res) => {
     }
 
     const response = await fetch(targetUrl, { headers });
-    let buffer = await response.arrayBuffer();
+    let buffer = Buffer.from(await response.arrayBuffer());
 
     console.log(`[Proxy] Status: ${response.status} | Length: ${buffer.byteLength} | URL: ${targetUrl.substring(0, 60)}...`);
 
@@ -951,6 +956,31 @@ app.get("/proxy", async (req, res) => {
         res.setHeader("Content-Type", "application/octet-stream");
     } else if (targetUrl.includes('.jpg') || targetUrl.includes('.png') || targetUrl.includes('.ts')) {
         res.setHeader("Content-Type", "video/mp2t");
+    } else if (targetUrl.includes('.vtt')) {
+        res.setHeader("Content-Type", "text/vtt");
+    }
+
+    // Strip PNG wrapper from disguised TS chunks
+    if (buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+        console.log(`[PNG Strip] Found PNG signature for URL: ${targetUrl.substring(0, 60)}...`);
+        let tsOffset = -1;
+        for (let i = 0; i < Math.min(buffer.length, 100000); i++) {
+            if (buffer[i] === 0x47 && buffer[i + 188] === 0x47 && buffer[i + 376] === 0x47) {
+                tsOffset = i;
+                break;
+            }
+        }
+        console.log(`[PNG Strip] tsOffset determined as: ${tsOffset}`);
+        if (tsOffset !== -1) {
+            buffer = buffer.slice(tsOffset);
+            res.setHeader("Content-Type", "video/mp2t");
+            console.log(`[PNG Strip] Successfully sliced buffer. New length: ${buffer.byteLength}`);
+        } else {
+            // Debug: print the first 20 bytes if failed
+            console.log(`[PNG Strip] Failed to find TS sync! First 20 bytes:`, buffer.slice(0, 20));
+        }
+    } else if (targetUrl.includes('/segment/')) {
+        console.log(`[PNG Strip] Segment did not start with PNG signature. First 4 bytes: ${buffer.length > 4 ? buffer.slice(0,4).toString('hex') : 'too short'}`);
     }
 
     res.setHeader("Content-Length", buffer.byteLength);

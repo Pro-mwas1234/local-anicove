@@ -43,6 +43,11 @@ export default function VideoPlayer({
 		setCurrentQuality,
 		setShowControls,
 		setSettingsOpen,
+		subFontSize,
+		subBackgroundOpacity,
+		subEdgeStyle,
+		subEdgeThickness,
+		subPosition,
 	} = playerState;
 
 	const destroyHls = useCallback(() => {
@@ -163,11 +168,33 @@ useEffect(() => {
 			const track = document.createElement("track");
 			track.kind = sub.kind || "captions";
 			track.label = sub.label || `Subtitle ${idx + 1}`;
-			track.src = sub.file;
+			track.srclang = sub.language || "en";
+			
+			let proxyUrl = sub.file;
+			if (sub.file?.startsWith("http")) {
+				proxyUrl = "/proxy?url=" + encodeURIComponent(sub.file);
+				const referer = streams.find(s => s.referer)?.referer || "";
+				if (referer) proxyUrl += "&referer=" + encodeURIComponent(referer);
+			}
+			track.src = proxyUrl;
+			
 			if (idx === 0) track.default = true;
 			video.appendChild(track);
 		});
-	}, [subtitles, isReady, isLoading]);
+
+		// Force the first track to show
+		setTimeout(() => {
+			if (video.textTracks && video.textTracks.length > 0) {
+				// Find the default track or just use the first one
+				for (let i = 0; i < video.textTracks.length; i++) {
+					if (video.textTracks[i].language === (subtitles[0]?.language || "en")) {
+						video.textTracks[i].mode = "showing";
+						break;
+					}
+				}
+			}
+		}, 100);
+	}, [subtitles, isReady, isLoading, streams]);
 
 
 
@@ -274,6 +301,20 @@ useEffect(() => {
 		>
 			{/* Video element */}
 			<div className="relative w-full pt-[56.25%] bg-black rounded-lg overflow-hidden">
+				<style>
+					{`
+						video::cue {
+							font-size: ${subFontSize}em;
+							background-color: rgba(0, 0, 0, ${subBackgroundOpacity});
+							${subEdgeStyle === "uniform" ? `text-shadow: 0 0 ${subEdgeThickness}px #000, 0 0 ${subEdgeThickness}px #000, 0 0 ${subEdgeThickness}px #000, 0 0 ${subEdgeThickness}px #000;` : ""}
+							${subEdgeStyle === "dropshadow" ? `text-shadow: ${subEdgeThickness}px ${subEdgeThickness}px ${subEdgeThickness * 2}px #000;` : ""}
+							${subEdgeStyle === "none" ? "text-shadow: none;" : ""}
+						}
+						video::-webkit-media-text-track-display {
+							transform: translateY(-${subPosition}px);
+						}
+					`}
+				</style>
 				<video
 					ref={videoRef}
 					className="absolute inset-0 w-full h-full cursor-pointer"
