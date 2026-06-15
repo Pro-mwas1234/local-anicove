@@ -20,6 +20,10 @@ export default function EpisodeList({
     if (initialAudioType) setAudioType(initialAudioType);
   }, [initialProvider, initialAudioType]);
 
+  useEffect(() => {
+    console.log(providers);
+  }, [providers]);
+
   // Auto-select first provider with episodes if none selected
   if (!currentProvider && providerNames.length > 0) {
     const defaultProv = providerNames.find(

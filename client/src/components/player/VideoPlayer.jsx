@@ -62,7 +62,7 @@ useEffect(() => {
         setQualities([]);
 
         const hlsStreams = streams.filter(
-            (s) => s.type === "hls" || s.url?.includes(".m3u8")
+            (s) => (s.type === "hls" || s.url?.includes(".m3u8")) && !!s.url
         );
 
         if (Hls.isSupported() && hlsStreams.length > 0) {
@@ -132,7 +132,7 @@ useEffect(() => {
 				video.play().catch(() => {});
 			});
 		} else {
-			const directStreams = streams.filter((s) => s.type !== "hls" && !s.url?.includes(".m3u8"));
+			const directStreams = streams.filter((s) => s.type !== "hls" && !s.url?.includes(".m3u8") && !!s.url);
 			if (directStreams.length > 0) {
 				const q = directStreams.map((s) => ({ label: s.quality, value: s.quality }));
 				setQualities(q);
@@ -142,6 +142,9 @@ useEffect(() => {
 				if (directStreams[0].referer) proxyUrl += "&referer=" + encodeURIComponent(directStreams[0].referer);
 				video.src = proxyUrl;
 				setIsReady(true);
+			} else if (hlsStreams.length === 0) {
+				console.error("No valid streams found.");
+				// Optionally, set an error state here if you have one.
 			}
 		}
 
@@ -306,7 +309,7 @@ useEffect(() => {
 
 				{/* Fullscreen Title Overlay */}
 				{playerState.isFullscreen && title && (
-					<div className={`absolute top-0 left-0 right-0 p-4 pt-6 bg-gradient-to-b from-black/80 to-transparent pointer-events-none transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}>
+					<div className={`absolute top-0 left-0 right-0 p-4 pt-6 bg-linear-to-b from-black/80 to-transparent pointer-events-none transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}>
 						<h2 className="text-white text-lg font-bold drop-shadow-md px-4">{title}</h2>
 					</div>
 				)}

@@ -262,7 +262,7 @@ app.get("/api/search", async (req, res) => {
     const perPage = parseInt(req.query.per_page) || 20;
     const { genre, format, status, sort } = req.query;
 
-    const args = ["type: ANIME"];
+    const args = ["type: ANIME", "isAdult: false"];
     const variables = { page, perPage };
     const varTypes = ["$page: Int", "$perPage: Int"];
 
@@ -328,7 +328,7 @@ app.get("/api/suggestions", async (req, res) => {
     const gql = `
         query ($search: String) {
             Page(page: 1, perPage: 8) {
-                media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
+                media(search: $search, type: ANIME, isAdult: false, sort: SEARCH_MATCH) {
                     id title { romaji english } coverImage { large } format status startDate { year } episodes
                 }
             }
@@ -379,6 +379,7 @@ app.get("/api/filter", async (req, res) => {
 
     const args = [
       "type: ANIME",
+      "isAdult: false",
       `sort: [${SORT_MAP[sort] || "POPULARITY_DESC"}]`,
     ];
     const variables = { page, perPage };
@@ -451,7 +452,7 @@ async function fetchCollection(sortType, statusStr, page, perPage) {
     query ($page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
             pageInfo { total currentPage lastPage hasNextPage perPage }
-            media(type: ANIME, sort: [${sortType}]${statusFilter}) {
+            media(type: ANIME, isAdult: false, sort: [${sortType}]${statusFilter}) {
                 ${MEDIA_LIST_FIELDS}
             }
         }
@@ -470,7 +471,7 @@ async function fetchCollection(sortType, statusStr, page, perPage) {
 
 app.get("/api/spotlight", async (req, res) => {
   try {
-    const gql = `query { Page(page: 1, perPage: 10) { media(sort: [TRENDING_DESC, POPULARITY_DESC], type: ANIME) { ${MEDIA_LIST_FIELDS} } } }`;
+    const gql = `query { Page(page: 1, perPage: 10) { media(sort: [TRENDING_DESC, POPULARITY_DESC], type: ANIME, isAdult: false) { ${MEDIA_LIST_FIELDS} } } }`;
     const data = await anilistQuery(gql);
     res.json(proxyDeepImages({ results: data.Page?.media || [] }));
   } catch (err) {
