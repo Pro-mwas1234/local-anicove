@@ -10,14 +10,18 @@
 
 ## 📸 Screenshots
 
-| Home Discovery | Video Player |
-|:---:|:---:|
-| <img src="https://via.placeholder.com/400x225?text=Home+Page" alt="Home Page"> | <img src="https://via.placeholder.com/400x225?text=Video+Player" alt="Video Player"> |
-| **Search & Filter** | **Anime Details** |
-| <img src="https://via.placeholder.com/400x225?text=Search" alt="Search"> | <img src="https://via.placeholder.com/400x225?text=Details" alt="Details"> |
-
+### Desktop View
 <div align="center">
-  <img src="https://via.placeholder.com/800x450?text=Mobile+Responsive" alt="Mobile Responsive">
+  <img src="./screenshots/app_screenshot_6.png" alt="Desktop Landscape View" width="100%">
+</div>
+
+### Mobile / Portrait Views
+<div align="center">
+  <img src="./screenshots/app_screenshot_1.png" alt="Screenshot 1" width="19%">
+  <img src="./screenshots/app_screenshot_2.png" alt="Screenshot 2" width="19%">
+  <img src="./screenshots/app_screenshot_3.png" alt="Screenshot 3" width="19%">
+  <img src="./screenshots/app_screenshot_4.png" alt="Screenshot 4" width="19%">
+  <img src="./screenshots/app_screenshot_5.png" alt="Screenshot 5" width="19%">
 </div>
 
 ## 🔗 Links

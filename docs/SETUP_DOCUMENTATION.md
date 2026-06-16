@@ -87,3 +87,19 @@ node index.js
 $env:PORT=8080
 node index.js
 ```
+
+## Docker Setup
+
+LocalLink provides a Dockerized environment for easy deployment. The provided `docker-compose.yml` sets up the Node.js application alongside an Nginx reverse proxy.
+
+1. Ensure Docker and Docker Compose are installed on your machine.
+2. From the root directory of the project, run:
+   ```bash
+   docker-compose up -d
+   ```
+3. The application will be built and accessible via the Nginx proxy at `http://localhost:3010`.
+
+To stop the containers, run:
+```bash
+docker-compose down
+```
