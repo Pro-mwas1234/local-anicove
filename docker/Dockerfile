@@ -10,6 +10,8 @@ RUN npm install --include=dev
 
 # Copy source and build
 COPY client/ ./
+ARG VITE_DEPLOY_ENV
+ENV VITE_DEPLOY_ENV=$VITE_DEPLOY_ENV
 RUN npm run build
 
 # Stage 2: Production Server
