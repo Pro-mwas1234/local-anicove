@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const zlib = require("zlib");
@@ -1087,7 +1088,7 @@ if (require.main === module) {
 
   const defaultPort = parseInt(process.env.PORT, 10) || 3000;
 
-  if (process.env.NO_PROMPT === "true" || process.env.NODE_ENV === "production" || !process.stdin.isTTY) {
+  if (process.env.NO_PROMPT === "true") {
     app.listen(defaultPort, "0.0.0.0", () => {
       console.log(`\n✅ Server successfully started on port ${defaultPort} (Non-interactive mode)`);
     });
@@ -1105,9 +1106,9 @@ if (require.main === module) {
     console.log("------------------------------------------\n");
 
     const promptForPort = () => {
-      rl.question("Enter port [Default: 3000]: ", async (answer) => {
+      rl.question("Enter port [Default: 3010]: ", async (answer) => {
         const input = answer.trim();
-        const port = input === "" ? 3000 : parseInt(input, 10);
+        const port = input === "" ? 3010 : parseInt(input, 10);
 
         if (isNaN(port) || port < 1024 || port > 65535) {
           console.log("❌ Invalid port. Please enter a valid number (1024 - 65535).\n");

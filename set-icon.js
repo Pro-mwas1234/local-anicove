@@ -17,10 +17,10 @@ async function run() {
   }
 
   try {
-    await rcedit(exePath, {
-      icon: iconPath
-    });
-    console.log('✅ Successfully injected icon into locallink-win.exe');
+    // await rcedit(exePath, {
+    //   icon: iconPath
+    // });
+    console.log('⚠️ Skipping rcedit to prevent pkg executable corruption.');
   } catch (err) {
     console.error('Failed to inject icon:', err);
   }
