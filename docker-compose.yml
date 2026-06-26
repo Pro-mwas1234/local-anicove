@@ -5,6 +5,7 @@ services:
       dockerfile: ./docker/Dockerfile
       args:
         - VITE_DEPLOY_ENV=${VITE_DEPLOY_ENV:-LOCAL}
+    image: locallink-anime-stream-app
     container_name: locallink-anime-stream
     # Expose tells Docker to open the port internally, but keeps it hidden from your host machine
     expose:
@@ -18,7 +19,11 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '0.50'
           memory: 512M
+        reservations: # ponytail: min required resource reserves
+          cpus: '0.10'
+          memory: 128M
 
   # The new Reverse Proxy
   proxy:
@@ -31,3 +36,11 @@ services:
     depends_on:
       - locallink
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
