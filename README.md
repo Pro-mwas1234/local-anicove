@@ -31,10 +31,10 @@
 - **API Docs**: [View API Documentation](./docs/API_DOCUMENTATION.md)
 - **Setup Docs**: [View Setup Documentation](./docs/SETUP_DOCUMENTATION.md)
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack & Architecture
 
 - **Frontend**: React, Tailwind CSS v4, Vite, HLS.js
-- **Backend**: Node.js, Express, pkg (Executable Bundling)
+- **Backend**: Node.js, Express (MVC Architecture: modular controllers, routes, and utilities in `src/`), pkg (Executable Bundling)
 
 ## 🐛 Issue Tracking
 

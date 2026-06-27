@@ -5,7 +5,6 @@ import {
   getTitle, truncateText, getBannerImage, getCoverImage,
   formatScore, formatStatus, formatDate, formatEpisodes, capitalize,
 } from "../utils/helpers";
-import EpisodeList from "../components/anime/EpisodeList";
 import CharacterList from "../components/anime/CharacterList";
 import RelatedAnime from "../components/anime/RelatedAnime";
 import Badge from "../components/ui/Badge";
@@ -71,10 +70,20 @@ export default function AnimeDetailPage() {
   const cover = getCoverImage(anime);
   const description = anime.description?.replace(/<[^>]*>/g, "") || "";
 
-  const handlePlayEpisode = (ep) => {
-    navigate(`/watch/${ep.id}`, {
-      state: { anime, episodeNumber: ep.number, episodeTitle: ep.title },
-    });
+  const handleWatchNow = () => {
+    const provKeys = Object.keys(providers || {});
+    const kiwiKey = provKeys.find((k) => k.toLowerCase() === "kiwi");
+    const chosenProvKey = kiwiKey || provKeys[0];
+    const chosenProv = providers?.[chosenProvKey];
+    const firstAudioKey = Object.keys(chosenProv?.episodes || {})[0];
+    const eps = chosenProv?.episodes?.[firstAudioKey] || [];
+    const sorted = [...eps].sort((a, b) => a.number - b.number);
+    const firstEp = sorted[0];
+    if (firstEp) {
+      navigate(`/watch/${firstEp.id}`, {
+        state: { anime, episodeNumber: firstEp.number, episodeTitle: firstEp.title },
+      });
+    }
   };
 
   return (
@@ -171,10 +180,8 @@ export default function AnimeDetailPage() {
             <div className="flex items-center gap-4 pt-2">
               {providers && (
                 <button
-                  onClick={() => {
-                    document.getElementById("episodes-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="flex items-center gap-2 bg-netflix-red hover:bg-netflix-red-hover text-white font-semibold px-6 py-3 rounded transition-colors"
+                  onClick={handleWatchNow}
+                  className="flex items-center gap-2 bg-netflix-red hover:bg-netflix-red-hover text-white font-semibold px-6 py-3 rounded transition-colors cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
@@ -230,15 +237,6 @@ export default function AnimeDetailPage() {
           </div>
         </div>
 
-        {/* Episodes */}
-        {providers && (
-          <div id="episodes-section" className="mb-12">
-            <EpisodeList
-              providers={providers}
-              onPlayEpisode={handlePlayEpisode}
-            />
-          </div>
-        )}
 
         {/* Characters */}
         {anime.characters && anime.characters.length > 0 && (

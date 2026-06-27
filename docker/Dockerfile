@@ -10,8 +10,6 @@ RUN npm install --include=dev
 
 # Copy source and build
 COPY client/ ./
-ARG VITE_DEPLOY_ENV
-ENV VITE_DEPLOY_ENV=$VITE_DEPLOY_ENV
 RUN npm run build
 
 # Stage 2: Production Server
@@ -27,6 +25,7 @@ COPY package.json ./
 RUN npm install --omit=dev
 
 COPY index.js ./
+COPY src/ ./src/
 # Copy the built client assets from the builder stage
 COPY --from=builder /app/client/dist ./client/dist
 

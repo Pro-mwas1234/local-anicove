@@ -10,19 +10,6 @@ export function SkeletonCard() {
 	);
 }
 
-export function SkeletonRow({ count = 6 }) {
-	return (
-		<div className="space-y-6">
-			<div className="skeleton h-7 w-48 rounded" />
-			<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-				{Array.from({ length: count }).map((_, i) => (
-					<SkeletonCard key={i} />
-				))}
-			</div>
-		</div>
-	);
-}
-
 export function SkeletonHero() {
 	return (
 		<div className="relative w-full h-[70vh] lg:h-[85vh] skeleton">

@@ -30,7 +30,7 @@ export default function Navbar() {
 	return (
 		<nav
 			id="main-navbar"
-			className={`fixed top-0 left-0 right-0 z-10 transition-all duration-300 ${scrolled || mobileOpen
+			className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || mobileOpen
 				? "bg-surface-deep/95 backdrop-blur-md shadow-lg shadow-black/20"
 				: "bg-linear-to-b from-black/60 to-transparent"
 				}`}
@@ -41,14 +41,12 @@ export default function Navbar() {
 					{/* Logo */}
 					<Link
 						to="/"
-						className="flex items-center gap-2 shrink-0"
+						className="flex items-center gap-2.5 shrink-0 group"
 						id="navbar-logo"
 					>
-						<span className="text-netflix-red text-2xl font-black tracking-tight">
-							LOCAL
-						</span>
-						<span className="text-text-primary text-2xl font-light tracking-tight">
-							LINK
+						<img src="/favicon.svg" alt="LocalLink Logo" className="h-9 w-9 rounded object-contain shadow-md group-hover:scale-105 transition-transform" />
+						<span className="text-xl font-black tracking-tight text-white hidden sm:inline">
+							LOCAL<span className="text-netflix-red font-light">LINK</span>
 						</span>
 					</Link>
 

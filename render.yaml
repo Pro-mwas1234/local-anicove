@@ -16,8 +16,6 @@ services:
         value: production
       - key: NO_PROMPT
         value: "true"
-      - key: VITE_DEPLOY_ENV
-        value: "CLOUD"
 
       # Note: Render automatically injects its own PORT environment variable
       # and routes traffic to it. You usually don't need to hardcode it,

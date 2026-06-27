@@ -13,6 +13,10 @@ All API requests are relative to `/api` (e.g., `http://localhost:3000/api`).
 
 ### 1. Discovery & Search
 
+#### `GET /api/cache-stats`
+Get memory cache performance statistics (hits, misses, keys).
+- **Response**: `{ hits: number, misses: number, keys: number, ksize: number, vsize: number }`
+
 #### `GET /api/search`
 Search for anime by title.
 - **Parameters**: `query` (string, required)
@@ -40,6 +44,7 @@ These endpoints return paginated lists of anime for specific categories.
 - `GET /api/recent`
 - `GET /api/spotlight`
 - `GET /api/schedule`
+- `GET /api/schedule/week`
 
 **Response**: `{ results: [...], page: 1 }`
 
@@ -75,3 +80,18 @@ Get the stream manifest (m3u8) for a specific episode.
   - `category`: `sub` or `dub`
   - `slug`: e.g., `ep-1`
 - **Response**: `{ streams: [{ url: "...", type: "hls" }] }`
+
+#### `GET /api/skips/:mal_id/:episode`
+Get opening and ending intro skip intervals from AniSkip API.
+- **Response**: `{ found: boolean, results: [{ interval: { startTime: number, endTime: number }, skipType: "op" | "ed" }] }`
+
+#### `GET /api/sources`
+Retrieve direct video source manifests using encrypted episode identifiers.
+
+---
+
+### 5. Media Proxy
+
+#### `GET /proxy`
+Reverse proxy endpoint for streaming video chunks and HLS m3u8 playlists, injecting required referer headers to bypass CDN hotlinking restrictions.
+- **Parameters**: `url` (string, required), `referer` (string, optional)

@@ -26,6 +26,7 @@ export default function SettingsMenu({
 	onSubEdgeThicknessChange,
 	subPosition,
 	onSubPositionChange,
+	subtitles,
 }) {
 	if (!isOpen) {
 		return (
@@ -119,110 +120,117 @@ export default function SettingsMenu({
 				{/* Subtitles */}
 				<div className="player-settings-section">
 					<div className="player-settings-label">Subtitles</div>
-					
-					{/* Font Size */}
-					<div className="text-xs text-zinc-400 mt-2 mb-1 px-3">Font Size</div>
-					<div className="player-settings-options player-settings-speed-grid px-3">
-						{[
-							{ label: "Small", value: 0.75 },
-							{ label: "Normal", value: 1 },
-							{ label: "Large", value: 1.5 },
-							{ label: "X-Large", value: 2 },
-						].map((opt) => (
-							<button
-								key={opt.value}
-								onClick={() => onSubFontSizeChange(opt.value)}
-								className={`player-settings-speed-btn ${
-									subFontSize === opt.value ? "player-settings-option-active" : ""
-								}`}
-							>
-								{opt.label}
-							</button>
-						))}
-					</div>
+					{!subtitles || subtitles.length === 0 ? (
+						<div className="text-xs text-zinc-400 px-3 py-4 text-center italic bg-black/30 rounded-lg mx-2 my-2 border border-white/5">
+							embed sub detected, no settings found
+						</div>
+					) : (
+						<>
+							{/* Font Size */}
+							<div className="text-xs text-zinc-400 mt-2 mb-1 px-3">Font Size</div>
+							<div className="player-settings-options player-settings-speed-grid px-3">
+								{[
+									{ label: "Small", value: 0.75 },
+									{ label: "Normal", value: 1 },
+									{ label: "Large", value: 1.5 },
+									{ label: "X-Large", value: 2 },
+								].map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => onSubFontSizeChange(opt.value)}
+										className={`player-settings-speed-btn ${
+											subFontSize === opt.value ? "player-settings-option-active" : ""
+										}`}
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
 
-					{/* Background */}
-					<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Background</div>
-					<div className="player-settings-options player-settings-speed-grid px-3">
-						{[
-							{ label: "None", value: 0 },
-							{ label: "Dim", value: 0.25 },
-							{ label: "Dark", value: 0.5 },
-							{ label: "Solid", value: 1 },
-						].map((opt) => (
-							<button
-								key={opt.value}
-								onClick={() => onSubBackgroundOpacityChange(opt.value)}
-								className={`player-settings-speed-btn ${
-									subBackgroundOpacity === opt.value ? "player-settings-option-active" : ""
-								}`}
-							>
-								{opt.label}
-							</button>
-						))}
-					</div>
+							{/* Background */}
+							<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Background</div>
+							<div className="player-settings-options player-settings-speed-grid px-3">
+								{[
+									{ label: "None", value: 0 },
+									{ label: "Dim", value: 0.25 },
+									{ label: "Dark", value: 0.5 },
+									{ label: "Solid", value: 1 },
+								].map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => onSubBackgroundOpacityChange(opt.value)}
+										className={`player-settings-speed-btn ${
+											subBackgroundOpacity === opt.value ? "player-settings-option-active" : ""
+										}`}
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
 
-					{/* Edge Style */}
-					<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Edge Style</div>
-					<div className="player-settings-options player-settings-speed-grid px-3">
-						{[
-							{ label: "Uniform", value: "uniform" },
-							{ label: "Shadow", value: "dropshadow" },
-							{ label: "None", value: "none" },
-						].map((opt) => (
-							<button
-								key={opt.value}
-								onClick={() => onSubEdgeStyleChange(opt.value)}
-								className={`player-settings-speed-btn ${
-									subEdgeStyle === opt.value ? "player-settings-option-active" : ""
-								}`}
-							>
-								{opt.label}
-							</button>
-						))}
-					</div>
+							{/* Edge Style */}
+							<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Edge Style</div>
+							<div className="player-settings-options player-settings-speed-grid px-3">
+								{[
+									{ label: "Uniform", value: "uniform" },
+									{ label: "Shadow", value: "dropshadow" },
+									{ label: "None", value: "none" },
+								].map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => onSubEdgeStyleChange(opt.value)}
+										className={`player-settings-speed-btn ${
+											subEdgeStyle === opt.value ? "player-settings-option-active" : ""
+										}`}
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
 
-					{/* Edge Thickness */}
-					<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Edge Thickness</div>
-					<div className="player-settings-options player-settings-speed-grid px-3">
-						{[
-							{ label: "Thin", value: 1 },
-							{ label: "Normal", value: 2 },
-							{ label: "Thick", value: 3 },
-							{ label: "Huge", value: 4 },
-						].map((opt) => (
-							<button
-								key={opt.value}
-								onClick={() => onSubEdgeThicknessChange(opt.value)}
-								className={`player-settings-speed-btn ${
-									subEdgeThickness === opt.value ? "player-settings-option-active" : ""
-								}`}
-							>
-								{opt.label}
-							</button>
-						))}
-					</div>
+							{/* Edge Thickness */}
+							<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Edge Thickness</div>
+							<div className="player-settings-options player-settings-speed-grid px-3">
+								{[
+									{ label: "Thin", value: 1 },
+									{ label: "Normal", value: 2 },
+									{ label: "Thick", value: 3 },
+									{ label: "Huge", value: 4 },
+								].map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => onSubEdgeThicknessChange(opt.value)}
+										className={`player-settings-speed-btn ${
+											subEdgeThickness === opt.value ? "player-settings-option-active" : ""
+										}`}
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
 
-					{/* Vertical Position */}
-					<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Vertical Position</div>
-					<div className="player-settings-options player-settings-speed-grid px-3">
-						{[
-							{ label: "Bottom", value: 0 },
-							{ label: "High", value: 30 },
-							{ label: "Higher", value: 60 },
-							{ label: "Highest", value: 90 },
-						].map((opt) => (
-							<button
-								key={opt.value}
-								onClick={() => onSubPositionChange(opt.value)}
-								className={`player-settings-speed-btn ${
-									subPosition === opt.value ? "player-settings-option-active" : ""
-								}`}
-							>
-								{opt.label}
-							</button>
-						))}
-					</div>
+							{/* Vertical Position */}
+							<div className="text-xs text-zinc-400 mt-3 mb-1 px-3">Vertical Position</div>
+							<div className="player-settings-options player-settings-speed-grid px-3">
+								{[
+									{ label: "Bottom", value: 0 },
+									{ label: "High", value: 30 },
+									{ label: "Higher", value: 60 },
+									{ label: "Highest", value: 90 },
+								].map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => onSubPositionChange(opt.value)}
+										className={`player-settings-speed-btn ${
+											subPosition === opt.value ? "player-settings-option-active" : ""
+										}`}
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

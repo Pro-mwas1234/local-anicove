@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import HeroBanner from "../components/home/HeroBanner";
-import AnimeCarousel from "../components/home/AnimeCarousel";
+import SwiperCarousel from "../components/home/SwiperCarousel";
+import TopRankingsAside from "../components/home/TopRankingsAside";
 import { getTrending, getPopular, getRecent, getUpcoming, getSpotlight } from "../services/api";
 import { useWatchHistory } from "../hooks/useWatchHistory";
 import { Link } from "react-router-dom";
@@ -98,26 +99,36 @@ export default function HomePage() {
           </div>
         )}
 
-        <AnimeCarousel 
-          title={<span className="flex items-center gap-2"><Flame className="text-orange-500 w-6 h-6 lg:w-7 lg:h-7" /> Trending Now</span>} 
-          anime={trending} 
-          loading={loading} 
-        />
-        <AnimeCarousel 
-          title={<span className="flex items-center gap-2"><Star className="text-yellow-400 w-6 h-6 lg:w-7 lg:h-7" /> Most Popular</span>} 
-          anime={popular} 
-          loading={loading} 
-        />
-        <AnimeCarousel 
-          title={<span className="flex items-center gap-2"><Tv className="text-blue-400 w-6 h-6 lg:w-7 lg:h-7" /> Recently Updated</span>} 
-          anime={recent} 
-          loading={loading} 
-        />
-        <AnimeCarousel 
-          title={<span className="flex items-center gap-2"><CalendarClock className="text-purple-400 w-6 h-6 lg:w-7 lg:h-7" /> Upcoming</span>} 
-          anime={upcoming} 
-          loading={loading} 
-        />
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Main carousels */}
+          <div className="flex-1 w-full min-w-0 space-y-10">
+            <SwiperCarousel 
+              title={<span className="flex items-center gap-2"><Flame className="text-orange-500 w-6 h-6 lg:w-7 lg:h-7" /> Trending Now</span>} 
+              anime={trending} 
+              loading={loading} 
+            />
+            <SwiperCarousel 
+              title={<span className="flex items-center gap-2"><Star className="text-yellow-400 w-6 h-6 lg:w-7 lg:h-7" /> Most Popular</span>} 
+              anime={popular} 
+              loading={loading} 
+            />
+            <SwiperCarousel 
+              title={<span className="flex items-center gap-2"><Tv className="text-blue-400 w-6 h-6 lg:w-7 lg:h-7" /> Recently Updated</span>} 
+              anime={recent} 
+              loading={loading} 
+            />
+            <SwiperCarousel 
+              title={<span className="flex items-center gap-2"><CalendarClock className="text-purple-400 w-6 h-6 lg:w-7 lg:h-7" /> Upcoming</span>} 
+              anime={upcoming} 
+              loading={loading} 
+            />
+          </div>
+
+          {/* Aside Rankings */}
+          <aside className="w-full lg:w-80 shrink-0 sticky top-24">
+            <TopRankingsAside trending={trending} popular={popular} recent={recent} />
+          </aside>
+        </div>
       </div>
     </div>
   );

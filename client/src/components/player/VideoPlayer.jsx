@@ -19,6 +19,8 @@ export default function VideoPlayer({
 	onEnded,
 	title = "",
 	isLoading = false,
+	isTheater = false,
+	onToggleTheater,
 }) {
 	const videoRef = useRef(null);
 	const hlsRef = useRef(null);
@@ -392,6 +394,9 @@ useEffect(() => {
 						onNextEpisode={onNextEpisode}
 						intro={intro}
 						outro={outro}
+						subtitles={subtitles}
+						isTheater={isTheater}
+						onToggleTheater={onToggleTheater}
 					/>
 				</div>
 			</div>

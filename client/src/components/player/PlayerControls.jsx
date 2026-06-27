@@ -1,6 +1,6 @@
 import {
 	Play, Pause, SkipBack, SkipForward,
-	Maximize, Minimize, PictureInPicture2,
+	Maximize, Minimize, PictureInPicture2, RectangleHorizontal,
 } from "lucide-react";
 import ProgressBar from "./ProgressBar";
 import VolumeControl from "./VolumeControl";
@@ -16,6 +16,9 @@ export default function PlayerControls({
 	onNextEpisode,
 	intro,
 	outro,
+	subtitles,
+	isTheater,
+	onToggleTheater,
 }) {
 	const {
 		isPlaying,
@@ -118,6 +121,7 @@ export default function PlayerControls({
 				<div className="player-controls-right">
 					{/* Settings */}
 					<SettingsMenu
+						subtitles={subtitles}
 						isOpen={settingsOpen}
 						onToggle={() => setSettingsOpen(!settingsOpen)}
 						qualities={qualities}
@@ -150,6 +154,13 @@ export default function PlayerControls({
 					<button onClick={togglePiP} className="player-btn" title="Picture in Picture">
 						<PictureInPicture2 className="w-5 h-5" />
 					</button>
+
+					{/* Theater Mode */}
+					{onToggleTheater && (
+						<button onClick={onToggleTheater} className={`player-btn ${isTheater ? "text-netflix-red" : ""}`} title={isTheater ? "Default View" : "Theater Mode"}>
+							<RectangleHorizontal className="w-5 h-5" />
+						</button>
+					)}
 
 					{/* Fullscreen */}
 					<button onClick={toggleFullscreen} className="player-btn" title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>

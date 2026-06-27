@@ -10,6 +10,7 @@ export default function EpisodeList({
   const [currentProvider, setCurrentProvider] = useState(initialProvider || null);
   const [audioType, setAudioType] = useState(initialAudioType || "sub");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const EPISODES_PER_PAGE = 50;
 
   const ALLOWED_PROVIDERS = ["ally", "bee", "kiwi"];
@@ -23,9 +24,10 @@ export default function EpisodeList({
     if (initialAudioType) setAudioType(initialAudioType);
   }, [initialProvider, initialAudioType]);
 
-  // Auto-select first provider with episodes if none selected
+  // Auto-select provider defaulting to kiwi
   if (!currentProvider && providerNames.length > 0) {
-    const defaultProv = providerNames.find(
+    const kiwiProv = providerNames.find((name) => name.toLowerCase() === "kiwi");
+    const defaultProv = kiwiProv || providerNames.find(
       (name) => providers[name]?.episodes?.sub?.length > 0
     ) || providerNames[0];
     setCurrentProvider(defaultProv);
@@ -114,12 +116,25 @@ export default function EpisodeList({
       {/* Episode grid and pagination */}
       {episodes.length > 0 ? (
         <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h3 className="text-lg font-bold text-text-primary">Episodes ({episodes.length})</h3>
+            <input
+              type="text"
+              placeholder="Search episode number or title..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="px-4 py-2 rounded-lg bg-surface-base border border-surface-border text-text-primary text-sm focus:outline-none focus:border-netflix-red w-full sm:w-64"
+            />
+          </div>
+
           {(() => {
-            // Sort episodes to ensure they are numerically ordered
             const sortedEps = [...episodes].sort((a, b) => a.number - b.number);
-            const totalPages = Math.ceil(sortedEps.length / EPISODES_PER_PAGE);
+            const filteredEps = searchQuery
+              ? sortedEps.filter((ep) => String(ep.number).includes(searchQuery) || (ep.title && ep.title.toLowerCase().includes(searchQuery.toLowerCase())))
+              : sortedEps;
+            const totalPages = Math.ceil(filteredEps.length / EPISODES_PER_PAGE);
             const startIndex = (currentPage - 1) * EPISODES_PER_PAGE;
-            const paginatedEps = sortedEps.slice(startIndex, startIndex + EPISODES_PER_PAGE);
+            const paginatedEps = filteredEps.slice(startIndex, startIndex + EPISODES_PER_PAGE);
 
             return (
               <>
@@ -129,7 +144,7 @@ export default function EpisodeList({
                     {Array.from({ length: totalPages }).map((_, i) => {
                       const pageNum = i + 1;
                       const startEp = i * EPISODES_PER_PAGE + 1;
-                      const endEp = Math.min((i + 1) * EPISODES_PER_PAGE, sortedEps.length);
+                      const endEp = Math.min((i + 1) * EPISODES_PER_PAGE, filteredEps.length);
                       return (
                         <button
                           key={pageNum}

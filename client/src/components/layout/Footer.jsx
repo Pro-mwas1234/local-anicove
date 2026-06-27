@@ -39,9 +39,11 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-surface-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-netflix-red text-lg font-black">LOCAL</span>
-            <span className="text-text-primary text-lg font-light">LINK</span>
+          <div className="flex items-center gap-2.5">
+            <img src="/favicon.svg" alt="LocalLink Logo" className="h-7 w-7 rounded object-contain shadow" />
+            <span className="text-lg font-black tracking-tight text-white">
+              LOCAL<span className="text-netflix-red font-light">LINK</span>
+            </span>
           </div>
           <p className="text-text-muted text-xs">
             © {new Date().getFullYear()} LocalLink - Anime Stream. For educational purposes only.

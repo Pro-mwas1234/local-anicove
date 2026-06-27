@@ -78,14 +78,7 @@ export function formatTime(seconds) {
 }
 
 /**
- * Get the day name for a schedule.
- */
-export function getDayName(dayIndex) {
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  return days[dayIndex] || "";
-}
 
-/**
  * Capitalize first letter of a string.
  */
 export function capitalize(str) {
