@@ -33,6 +33,7 @@ COPY --from=builder /app/client/dist ./client/dist
 ENV NODE_ENV=production
 ENV NO_PROMPT=true
 ENV PORT=3000
+ENV NODE_OPTIONS="--optimize-for-size --max-old-space-size=128"
 
 EXPOSE 3000
 
