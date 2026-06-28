@@ -12,7 +12,8 @@ services:
       - NODE_ENV=${NODE_ENV:-production}
       - NO_PROMPT=${NO_PROMPT:-true}
       - PORT=${PORT:-3000}
-      - NODE_OPTIONS="--optimize-for-size --max-old-space-size=128"
+      - NODE_OPTIONS=--max-old-space-size=128
+    command: node --optimize-for-size index.js
     restart: unless-stopped
     deploy:
       resources:

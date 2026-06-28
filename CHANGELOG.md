@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Streaming Pipeline Proxy**: Refactored the video streaming reverse proxy (`proxyController.js`) to use native Node.js pipelines and Web Streams, streaming binary chunks directly without buffering full video segments into RAM.
-- **V8 Engine Tuning**: Added `NODE_OPTIONS="--optimize-for-size --max-old-space-size=128"` to `Dockerfile` and `docker-compose.yml` to minimize idle container memory footprint.
+- **V8 Engine Tuning**: Configured `NODE_OPTIONS=--max-old-space-size=128` and passed `--optimize-for-size` directly to node command in `Dockerfile` and `docker-compose.yml` to minimize idle container memory footprint.
 - **Nginx & Express Buffer Optimization**: Configured Nginx Alpine buffer sizes, enabled aggressive static asset 1-year browser caching, disabled Express `x-powered-by` headers, and added socket keep-alive timeouts (`keepAliveTimeout = 65000`).
 - **Interactive Swiper Carousels**: Replaced static overflow scrolling containers across Home Page and Watch Page recommendations with responsive navigation arrow carousels.
 - **Top Rankings Sidebar**: Embedded interactive rankings sidebar alongside anime details on the Watch Page.
