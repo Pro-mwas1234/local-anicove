@@ -18,8 +18,9 @@ app.use(express.json());
 // Mount API Routes
 app.use("/api", apiRoutes);
 
-// Mount Proxy Route
+// Mount Proxy Routes
 app.get("/proxy", proxyController.proxy);
+app.post("/proxy/report-blocked", proxyController.reportBlocked);
 
 // SPA fallback — serve React app for all other routes
 app.use((req, res) => {

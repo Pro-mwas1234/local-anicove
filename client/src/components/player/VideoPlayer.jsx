@@ -114,20 +114,57 @@ useEffect(() => {
 				video.play().catch(() => {});
 			});
 
+			let networkErrorCount = 0;
+			let currentStreamIndex = 0;
 			hls.on(Hls.Events.ERROR, (_, errData) => {
                 if (errData.fatal) {
                     switch (errData.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
-                            hls.startLoad();
+                            networkErrorCount++;
+                            if (networkErrorCount === 1 && errData.response?.code === 403) {
+                                // Report this CDN as strict to the backend for self-learning
+                                try {
+                                    const blockedUrl = errData.url || errData.frag?.url || "";
+                                    if (blockedUrl) {
+                                        const blockedHost = new URL(blockedUrl).hostname;
+                                        fetch("/proxy/report-blocked", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ hostname: blockedHost }),
+                                        }).catch(() => {});
+                                    }
+                                } catch (e) {}
+
+                                console.warn("403 Forbidden on chunk, retrying with adaptive segment proxying...");
+                                let fallbackProxyUrl = getProxyUrl(hlsStreams[currentStreamIndex].url, hlsStreams[currentStreamIndex].referer, false) + "&proxyChunks=true";
+                                const fallbackMaster = `#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.4d401e,mp4a.40.2"\n${fallbackProxyUrl}\n`;
+                                const fallbackBlob = new Blob([fallbackMaster], { type: "application/vnd.apple.mpegurl" });
+                                hls.loadSource(URL.createObjectURL(fallbackBlob));
+                            } else if (networkErrorCount <= 3) {
+                                // Try the next available HLS stream before giving up
+                                currentStreamIndex++;
+                                if (currentStreamIndex < hlsStreams.length) {
+                                    console.warn(`Stream ${currentStreamIndex - 1} failed, trying stream ${currentStreamIndex}...`);
+                                    networkErrorCount = 0; // Reset for the new stream
+                                    let nextProxyUrl = getProxyUrl(hlsStreams[currentStreamIndex].url, hlsStreams[currentStreamIndex].referer, true);
+                                    const nextMaster = `#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.4d401e,mp4a.40.2"\n${nextProxyUrl}\n`;
+                                    const nextBlob = new Blob([nextMaster], { type: "application/vnd.apple.mpegurl" });
+                                    hls.loadSource(URL.createObjectURL(nextBlob));
+                                } else {
+                                    hls.startLoad();
+                                }
+                            } else {
+                                hls.destroy();
+                            }
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
                             mediaErrorCount++;
                             if (mediaErrorCount <= 3) {
                                 console.warn("Media error, attempting recovery...");
-                                hls.recoverMediaError(); // Try to fix it
+                                hls.recoverMediaError();
                             } else {
                                 console.error("Too many media errors. Stopping to prevent infinite blinking loop.");
-                                hls.destroy(); // Give up instead of blinking forever
+                                hls.destroy();
                             }
                             break;
                         default:

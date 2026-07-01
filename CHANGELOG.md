@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] (2026-07-01)
+
+### Added
+
+- **Miruro CDN Access Infrastructure**: Replicated Miruro's high-speed CDN access pipeline using modern Chrome 136 client hints (`Sec-Ch-Ua`, `Sec-Fetch-*`) and dynamic Origin/Referer rotation across all upstream video servers (`bee`, `ally`, `kiwi`, `pewe`, `bonk`).
+- **Dynamic Strict CDN Self-Learning**: Implemented runtime CDN blocking detection (`POST /proxy/report-blocked`) where client HLS players automatically report `403 Forbidden` domains to the backend, updating `serverCache` to proxy segment chunks automatically without manual whitelist updates.
+- **Multi-Stream Automatic Failover**: Updated `VideoPlayer.jsx` error recovery logic to fallback seamlessly to adaptive chunk proxying or the next available HLS streaming link upon network or CORS errors.
+- **Version Indicator**: Added visual version badge (`v1.2.0`) to the application footer next to the LocalLink branding logo.
+
+### Fixed
+
+- **Idempotent Episode ID Resolution**: Resolved a double base64url encoding bug in `streamController.js` when querying upstream Wistoria and Wands / Wistoria episode sources.
+- **Anti-Caching Error Headers**: Added strict `Cache-Control: no-store` headers to all proxy error responses (`403 Forbidden`, `410 Gone`, `500 Internal Error`) to prevent web browsers from caching streaming failure states on disk.
+
 ## [1.1.0] (2026-06-28)
 
 ### Added

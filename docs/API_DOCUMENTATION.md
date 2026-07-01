@@ -1,4 +1,4 @@
-Version: 1.1.0
+Version: 1.2.0
 
 # API Documentation
 
@@ -93,5 +93,9 @@ Retrieve direct video source manifests using encrypted episode identifiers.
 ### 5. Media Proxy
 
 #### `GET /proxy`
-Reverse proxy endpoint for streaming video chunks and HLS m3u8 playlists, injecting required referer headers to bypass CDN hotlinking restrictions.
+Reverse proxy endpoint for streaming video chunks and HLS m3u8 playlists, injecting required referer headers and modern Chrome client hints (`Sec-Ch-Ua`, `Sec-Fetch-*`) to bypass CDN CORS/hotlinking restrictions.
 - **Parameters**: `url` (string, required), `referer` (string, optional)
+
+#### `POST /proxy/report-blocked`
+Self-learning CDN feedback loop endpoint. Client HLS players report 403 Forbidden domains here so the backend dynamically records the hostname in `serverCache` to proxy future segment chunks automatically.
+- **Body**: `{ hostname: string }`
