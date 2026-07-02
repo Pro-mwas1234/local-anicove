@@ -24,6 +24,9 @@ COPY package.json ./
 # Install only production dependencies natively on Linux (protects SQLite bindings)
 RUN npm install --omit=dev
 
+# Ensure CycleTLS Linux binaries are executable
+RUN chmod +x node_modules/cycletls/dist/* 2>/dev/null || true
+
 COPY index.js ./
 COPY src/ ./src/
 # Copy the built client assets from the builder stage

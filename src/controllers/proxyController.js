@@ -155,6 +155,7 @@ async function nativeStreamFetch(targetUrl, headers = {}, signal = null, method 
         ja3: "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-17513,29-23-24,0",
         userAgent: mergedHeaders["User-Agent"] || BROWSER_HEADERS["User-Agent"],
         headers: mergedHeaders,
+        responseType: "arraybuffer",
       },
       method.toLowerCase()
     );
@@ -315,7 +316,7 @@ exports.proxy = async (req, res) => {
       return res.end();
     }
 
-    const isKey = targetUrl.includes('.key');
+    const isKey = targetUrl.includes('.key') || targetUrl.endsWith('/monkey') || targetUrl.includes('/key/') || targetUrl.endsWith('/key') || (firstChunk && firstChunk.length === 16);
     const isM3u8 =
       targetUrl.includes('.m3u8') ||
       (!isKey && firstChunk.length >= 7 && Buffer.from(firstChunk.slice(0, 7)).toString('utf-8') === '#EXTM3U') ||
@@ -408,12 +409,12 @@ exports.proxy = async (req, res) => {
     let strippedDecoy = false;
 
     // Universal Decoy Stripping: check for disguised MPEG-TS or fMP4 regardless of magic image bytes
-    if (chunkToWrite.length > 376) {
+    if (!isKey && chunkToWrite.length > 752) {
       const startsWithTs = (chunkToWrite[0] === 0x47 && chunkToWrite[188] === 0x47 && chunkToWrite[376] === 0x47);
       if (!startsWithTs) {
         let tsOffset = -1;
-        for (let i = 0; i < Math.min(chunkToWrite.length - 376, 100000); i++) {
-          if (chunkToWrite[i] === 0x47 && chunkToWrite[i + 188] === 0x47 && chunkToWrite[i + 376] === 0x47) {
+        for (let i = 0; i < Math.min(chunkToWrite.length - 752, 100000); i++) {
+          if (chunkToWrite[i] === 0x47 && chunkToWrite[i + 188] === 0x47 && chunkToWrite[i + 376] === 0x47 && chunkToWrite[i + 564] === 0x47 && chunkToWrite[i + 752] === 0x47) {
             tsOffset = i;
             break;
           }
@@ -425,7 +426,7 @@ exports.proxy = async (req, res) => {
       }
     }
 
-    if (!strippedDecoy && chunkToWrite.length > 16) {
+    if (!isKey && !strippedDecoy && chunkToWrite.length > 16) {
       const mp4Boxes = ['ftyp', 'styp', 'moof', 'moov'];
       let mp4Offset = -1;
       for (let i = 0; i < Math.min(chunkToWrite.length - 8, 100000); i++) {
@@ -461,14 +462,14 @@ exports.proxy = async (req, res) => {
     });
 
     const isImageExtOrMime = targetUrl.includes('.jpg') || targetUrl.includes('.png') || targetUrl.includes('.gif') || targetUrl.includes('.webp') || response.headers.get("content-type")?.toLowerCase().includes("image/");
-    if (strippedDecoy || isImageExtOrMime || targetUrl.includes('.ts')) {
+    if (isKey) {
+      res.setHeader("Content-Type", "application/octet-stream");
+    } else if (strippedDecoy || isImageExtOrMime || targetUrl.includes('.ts')) {
       if (chunkToWrite.length > 8 && ['ftyp', 'styp', 'moof', 'moov'].includes(chunkToWrite.toString('ascii', 4, 8))) {
         res.setHeader("Content-Type", "video/mp4");
       } else {
         res.setHeader("Content-Type", "video/mp2t");
       }
-    } else if (isKey) {
-      res.setHeader("Content-Type", "application/octet-stream");
     } else if (targetUrl.includes('.vtt')) {
       res.setHeader("Content-Type", "text/vtt");
     }
