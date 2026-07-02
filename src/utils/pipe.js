@@ -41,6 +41,20 @@ let cycleTLSInstance = null;
 
 async function getCycleTLS() {
   if (!cycleTLSInstance) {
+    if (process.platform !== "win32") {
+      try {
+        const fs = require("fs");
+        const path = require("path");
+        const distDir = path.join(path.dirname(require.resolve("cycletls/package.json")), "dist");
+        if (fs.existsSync(distDir)) {
+          fs.readdirSync(distDir).forEach((f) => {
+            if (!f.endsWith(".js") && !f.endsWith(".ts") && !f.endsWith(".map") && !f.endsWith(".json")) {
+              try { fs.chmodSync(path.join(distDir, f), 0o755); } catch (e) {}
+            }
+          });
+        }
+      } catch (e) {}
+    }
     const initCycleTLS = require("cycletls");
     cycleTLSInstance = await initCycleTLS();
   }
@@ -53,7 +67,7 @@ async function fetchUpstreamPipe(encodedReq, headers = {}) {
     pipeUrl = "https://www.miruro.tv/api/secure/pipe";
   }
 
-  let customHeaders = { ...HEADERS, ...headers };
+  let customHeaders = { ...HEADERS, ...getHarvestedHeaders(), ...headers };
   let targetUrl = `${pipeUrl}?e=${encodedReq}`;
 
   // Use CycleTLS to perform native TLS JA3 impersonation outside of test environments

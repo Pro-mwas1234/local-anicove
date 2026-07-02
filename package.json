@@ -10,7 +10,8 @@
     "build:client": "cd client && npm install && npm run build",
     "package": "pkg . --targets node18-linux-x64,node18-win-x64 --out-path dist-bin",
     "postpackage": "node set-icon.js",
-    "release": "standard-version"
+    "release": "standard-version",
+    "postinstall": "node -e \"try{const fs=require('fs'),p=require('path'),d=p.join(p.dirname(require.resolve('cycletls/package.json')),'dist');if(process.platform!=='win32'&&fs.existsSync(d))fs.readdirSync(d).forEach(f=>{if(!f.endsWith('.js')&&!f.endsWith('.ts')&&!f.endsWith('.map')&&!f.endsWith('.json'))try{fs.chmodSync(p.join(d,f),0o755)}catch(e){}})}catch(e){}\""
   },
   "pkg": {
     "assets": [
