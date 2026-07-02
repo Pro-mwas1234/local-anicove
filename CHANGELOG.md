@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] (2026-07-02)
+
+### Fixed
+- **Docker Container Playback & CycleTLS Permissions**: Added `chmod +x` inside `docker/Dockerfile` after npm installation so Linux `cycletls` binary runs properly inside Docker container (`EACCES` fix).
+- **CycleTLS Binary Response Handling**: Specified `responseType: "arraybuffer"` in `proxyController.js` to ensure binary HLS segments, images, and AES keys aren't parsed as JSON when fetched via CycleTLS.
+- **AES Key & Decoy Stripping Resilience**: Improved `isKey` detection for AES decryption keys (e.g. `/monkey`) and tightened decoy stripping checks to 5 consecutive TS sync packets to prevent false-positive corruption on AES-128 encrypted HLS video segments.
+- **Nginx Reverse Proxy Headers**: Added `X-Forwarded-Proto $scheme` header inside `location ^~ /proxy` in `docker/nginx.conf`.
+
 ## [1.2.2] (2026-07-02)
 
 ### Added
