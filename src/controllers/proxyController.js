@@ -316,7 +316,9 @@ exports.proxy = async (req, res) => {
       return res.end();
     }
 
-    const isKey = targetUrl.includes('.key') || targetUrl.endsWith('/monkey') || targetUrl.includes('/key/') || targetUrl.endsWith('/key') || (firstChunk && firstChunk.length === 16);
+    let targetPath = "";
+    try { targetPath = new URL(targetUrl).pathname.toLowerCase(); } catch (e) {}
+    const isKey = targetPath.endsWith('.key') || targetPath.endsWith('/monkey') || targetPath.includes('/key/') || targetUrl.includes('.key') || targetUrl.includes('/monkey') || (firstChunk && firstChunk.length === 16);
     const isM3u8 =
       targetUrl.includes('.m3u8') ||
       (!isKey && firstChunk.length >= 7 && Buffer.from(firstChunk.slice(0, 7)).toString('utf-8') === '#EXTM3U') ||
