@@ -63,7 +63,7 @@ describe("useMyList", () => {
     const { result } = renderHook(() => useMyList());
     act(() => result.current.addToList(mockAnime));
 
-    const stored = JSON.parse(localStorage.getItem("locallink_mylist"));
+    const stored = JSON.parse(localStorage.getItem("anicove_mylist"));
     expect(stored).toHaveLength(1);
     expect(stored[0].id).toBe(12345);
   });

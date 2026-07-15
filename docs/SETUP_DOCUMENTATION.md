@@ -2,7 +2,7 @@ Version: 1.2.3
 
 # Setup Documentation
 
-This guide will walk you through setting up and running LocalLink locally for development or production use.
+This guide will walk you through setting up and running Anicove locally for development or production use.
 
 ## Prerequisites
 
@@ -14,8 +14,8 @@ This guide will walk you through setting up and running LocalLink locally for de
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/Soujiro0/locallink-anime-stream.git
-   cd locallink-anime-stream
+   git clone https://github.com/Soujiro0/anicove.git
+   cd anicove
    ```
 
 2. **Install Backend Dependencies:**
@@ -53,7 +53,7 @@ The entire application will be accessible at `http://localhost:3000`.
 
 ## Building Standalone Executables (Linux / Windows)
 
-LocalLink uses `pkg` to bundle the Node.js server and React frontend into single, portable executable files that do not require Node.js to be installed on the target machine.
+Anicove uses `pkg` to bundle the Node.js server and React frontend into single, portable executable files that do not require Node.js to be installed on the target machine.
 
 1. Ensure you have built the React frontend:
 
@@ -68,18 +68,18 @@ LocalLink uses `pkg` to bundle the Node.js server and React frontend into single
    ```
 
 3. The executables will be generated in the `dist-bin/` directory:
-   - `locallink-linux`
-   - `locallink-win.exe`
+   - `anicove-linux`
+   - `anicove-win.exe`
 
 ## Changing the Port
 
 ### Standalone Executables
 
-When running the compiled executables (`locallink-win.exe` or `locallink-linux`), the application will interactively prompt you to enter a port in the terminal:
+When running the compiled executables (`anicove-win.exe` or `anicove-linux`), the application will interactively prompt you to enter a port in the terminal:
 
 ```
 ==========================================
- Welcome to LocalLink Server!
+ Welcome to Anicove Server!
 ==========================================
 Please specify the port to run the server on.
 Valid ports are generally between 1024 and 65535.
@@ -99,7 +99,7 @@ PROXY_PORT=3010
 
 ## Docker Setup
 
-LocalLink provides a Dockerized environment for easy deployment. The provided `docker-compose.yml` sets up the Node.js application alongside an Nginx reverse proxy.
+Anicove provides a Dockerized environment for easy deployment. The provided `docker-compose.yml` sets up the Node.js application alongside an Nginx reverse proxy.
 
 1. Ensure Docker and Docker Compose are installed on your machine.
 2. From the root directory of the project, run:

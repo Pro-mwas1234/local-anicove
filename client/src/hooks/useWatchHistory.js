@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
-const STORAGE_KEY = "locallink_watch_history";
+const STORAGE_KEY = "anicove_watch_history";
 const MAX_HISTORY = 50;
 
 /**

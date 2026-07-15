@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="./client/public/favicon.svg" alt="LocalLink Logo" width="150" height="150">
+  <img src="./client/public/favicon.svg" alt="Anicove Logo" width="150" height="150">
 
-# LocalLink - Anime Streaming Platform
+# Anicove - Anime Streaming Platform
 
 **Your modern, high-performance local platform for streaming and discovering anime.**
 
@@ -17,7 +17,7 @@
 
   <br>
 
-A fast, reliable, and beautifully designed streaming experience inspired by premium services like Netflix. LocalLink brings your favorite series right to your desktop with seamless playback and intuitive discovery features.
+A fast, reliable, and beautifully designed streaming experience inspired by premium services like Netflix. Anicove brings your favorite series right to your desktop with seamless playback and intuitive discovery features.
 
 </div>
 
@@ -58,7 +58,7 @@ A fast, reliable, and beautifully designed streaming experience inspired by prem
 ## 🔗 Links
 
 - **Changelog**: [View Changelog](./CHANGELOG.md)
-- **Releases**: [Download & Release Notes](https://github.com/Soujiro0/locallink-anime-stream/releases)
+- **Releases**: [Download & Release Notes](https://github.com/Soujiro0/anicove/releases)
 - **API Docs**: [View API Documentation](./docs/API_DOCUMENTATION.md)
 - **Setup Docs**: [View Setup Documentation](./docs/SETUP_DOCUMENTATION.md)
 
@@ -69,7 +69,7 @@ A fast, reliable, and beautifully designed streaming experience inspired by prem
 
 ## 🐛 Issue Tracking
 
-Found a bug or have a feature request? Please check the [Issues](https://github.com/Soujiro0/locallink-anime-stream/issues) tab to see if it has already been reported, or open a new issue.
+Found a bug or have a feature request? Please check the [Issues](https://github.com/Soujiro0/anicove/issues) tab to see if it has already been reported, or open a new issue.
 
 ## 📄 License
 

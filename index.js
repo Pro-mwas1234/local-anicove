@@ -60,7 +60,7 @@ if (require.main === module) {
     server.on("error", (err) => {
       if (err.code === "EADDRINUSE") {
         console.error(`\n❌ Port ${defaultPort} is already in use by another process!`);
-        console.error(`Please close any existing running instance of LocalLink (or run 'taskkill /F /IM node.exe' on Windows) and try again.\n`);
+        console.error(`Please close any existing running instance of Anicove (or run 'taskkill /F /IM node.exe' on Windows) and try again.\n`);
       } else {
         console.error(`\n❌ Server error:`, err.message);
       }

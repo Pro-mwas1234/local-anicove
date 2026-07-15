@@ -94,7 +94,7 @@ describe("useWatchHistory", () => {
       });
     });
 
-    const stored = JSON.parse(localStorage.getItem("locallink_watch_history"));
+    const stored = JSON.parse(localStorage.getItem("anicove_watch_history"));
     expect(stored).toHaveLength(1);
   });
 });

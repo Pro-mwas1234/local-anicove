@@ -2,7 +2,7 @@ Version: 1.2.3
 
 # API Documentation
 
-The LocalLink platform features a native Node.js Express backend that proxies requests to Anilist's GraphQL API, Miruro's secure pipe endpoints, and issues authoritative IP-bound HMAC stream tokens.
+The Anicove platform features a native Node.js Express backend that proxies requests to Anilist's GraphQL API, Miruro's secure pipe endpoints, and issues authoritative IP-bound HMAC stream tokens.
 
 ## Base URL
 All API requests are relative to `/api` (e.g., `http://localhost:3000/api`).
@@ -101,7 +101,7 @@ Self-learning CDN feedback loop endpoint. Client HLS players report 403 Forbidde
 - **Body**: `{ hostname: string }`
 
 #### `GET /POST /api/stream/authorize`
-Issues authoritative IP-bound HMAC-SHA256 streaming tokens and sets domain-scoped HTTP-only session cookies (`__Secure-LocalLink-Auth`) bound to the client's public IP address.
+Issues authoritative IP-bound HMAC-SHA256 streaming tokens and sets domain-scoped HTTP-only session cookies (`__Secure-Anicove-Auth`) bound to the client's public IP address.
 - **Parameters**: `streamId` or `url` (string, required)
 - **Response**: `{ success: true, authorizedStreamId: string, clientIp: string, expiresAt: number, sig: string }`
 

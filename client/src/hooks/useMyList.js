@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
-const STORAGE_KEY = "locallink_mylist";
+const STORAGE_KEY = "anicove_mylist";
 
 /**
  * Hook to manage a user's personal watchlist in localStorage.

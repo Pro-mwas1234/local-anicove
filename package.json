@@ -1,7 +1,7 @@
 {
-  "name": "locallink",
+  "name": "anicove",
   "version": "1.2.3",
-  "description": "",
+  "description": "Anicove anime streaming platform",
   "main": "index.js",
   "bin": "index.js",
   "scripts": {

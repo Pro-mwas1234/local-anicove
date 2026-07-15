@@ -253,7 +253,7 @@ async function enrichStreamResponse(data, provider, req, res) {
   if (req && listToResolve && listToResolve.length > 0) {
     try {
       const clientIp = tokenSigner.extractClientIp(req);
-      const primaryUrl = listToResolve[0]?.url || "locallink_stream";
+      const primaryUrl = listToResolve[0]?.url || "anicove_stream";
       const primaryToken = tokenSigner.generateStreamToken({ streamId: primaryUrl, clientIp });
       
       if (res && typeof res.setHeader === "function") {

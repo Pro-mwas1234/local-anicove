@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 ## [1.2.2] (2026-07-02)
 
 ### Added
-- **Authoritative Stream Security & IP-Binding**: Implemented cryptographic HMAC stream token signing (`tokenSigner.js`) bound to client public IP addresses (`X-Forwarded-For` / `req.ip`). Added `/api/stream/authorize` endpoint issuing domain-scoped HTTP-only session cookies (`__Secure-LocalLink-Auth`) for zero-overhead HLS segment delivery.
+- **Authoritative Stream Security & IP-Binding**: Implemented cryptographic HMAC stream token signing (`tokenSigner.js`) bound to client public IP addresses (`X-Forwarded-For` / `req.ip`). Added `/api/stream/authorize` endpoint issuing domain-scoped HTTP-only session cookies (`__Secure-Anicove-Auth`) for zero-overhead HLS segment delivery.
 - **CycleTLS Upstream Parity**: Integrated `cycletls` inside `pipe.js` to impersonate genuine desktop browser TLS JA3 fingerprints (`771,4865-4866...`) when querying protected upstream media APIs, bypassing Cloudflare WAF bot challenges.
 - **Automatic Embed Stream Fallback**: Upgraded `VideoPlayer.jsx` to transition seamlessly to embedded iframe players (`Ok`, `Fm-Hls`, `Mp4 (embed)`) whenever native video streams encounter fatal network or CORS errors or are unavailable.
 
@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - **Miruro CDN Access Infrastructure**: Replicated Miruro's high-speed CDN access pipeline using modern Chrome 136 client hints (`Sec-Ch-Ua`, `Sec-Fetch-*`) and dynamic Origin/Referer rotation across all upstream video servers (`bee`, `ally`, `kiwi`, `pewe`, `bonk`).
 - **Dynamic Strict CDN Self-Learning**: Implemented runtime CDN blocking detection (`POST /proxy/report-blocked`) where client HLS players automatically report `403 Forbidden` domains to the backend, updating `serverCache` to proxy segment chunks automatically without manual whitelist updates.
 - **Multi-Stream Automatic Failover**: Updated `VideoPlayer.jsx` error recovery logic to fallback seamlessly to adaptive chunk proxying or the next available HLS streaming link upon network or CORS errors.
-- **Version Indicator**: Added visual version badge (`v1.2.0`) to the application footer next to the LocalLink branding logo.
+- **Version Indicator**: Added visual version badge (`v1.2.0`) to the application footer next to the Anicove branding logo.
 
 ### Fixed
 
@@ -58,7 +58,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Initial Release**: Launched LocalLink Anime Stream, a Netflix-inspired responsive React frontend and native Node.js proxy application.
+- **Initial Release**: Launched Anicove Anime Stream, a Netflix-inspired responsive React frontend and native Node.js proxy application.
 - **YouTube-Style Theater Mode**: Added a toggleable theater mode button in the video player control bar that expands the video across the full viewport width (`w-full`) and dynamically shifts the right-side anime details box underneath into a sleek horizontal responsive card layout.
 - **Interactive Carousels (`SwiperCarousel`)**: Implemented interactive Swiper carousels supporting dedicated left/right navigation arrows across all screen sizes.
 - **Top Rankings Sidebar**: Integrated a responsive top rankings sidebar displaying Trending, Popular, and Recently Released anime directly alongside recommendations on the Watch Page.

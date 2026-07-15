@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-const DEFAULT_SECRET = process.env.STREAM_WHITELIST_SECRET || "locallink-secure-hmac-key-2026";
+const DEFAULT_SECRET = process.env.STREAM_WHITELIST_SECRET || "anicove-secure-hmac-key-2026";
 
 /**
  * Extract verified client IP address from request headers or socket.
@@ -89,7 +89,7 @@ function verifyStreamToken({ sig, streamId, clientIp, exp, secret = DEFAULT_SECR
  * Create standard HTTP-only session cookie header for HLS players to automatically attach during chunk fetching.
  */
 function createHlsAuthCookie({ streamId, sig, exp, domain }) {
-  const cookieVal = `__Secure-LocalLink-Auth=${streamId}:${sig}:${exp}`;
+  const cookieVal = `__Secure-Anicove-Auth=${streamId}:${sig}:${exp}`;
   const attributes = [
     `Path=/`,
     `Max-Age=${Math.max(0, parseInt(exp, 10) - Math.floor(Date.now() / 1000))}`,

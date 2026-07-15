@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: locallink-anime-stream
+    name: anicove
     env: node
     region: oregon
     plan: free

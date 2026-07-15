@@ -1,10 +1,10 @@
 services:
-  locallink:
+  anicove:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: locallink-anime-stream-app:latest
-    container_name: locallink-anime-stream
+    image: anicove-app:latest
+    container_name: anicove
     # Expose tells Docker to open the port internally, but keeps it hidden from your host machine
     expose:
       - "${PORT:-3000}"
@@ -13,7 +13,7 @@ services:
       - NO_PROMPT=${NO_PROMPT:-true}
       - PORT=${PORT:-3000}
       - NODE_OPTIONS=--max-old-space-size=128
-      - STREAM_WHITELIST_SECRET=${STREAM_WHITELIST_SECRET:-locallink-secure-hmac-key-2026}
+      - STREAM_WHITELIST_SECRET=${STREAM_WHITELIST_SECRET:-anicove-secure-hmac-key-2026}
       - MIRURO_PIPE_URL=${MIRURO_PIPE_URL:-https://www.miruro.tv/api/secure/pipe}
       - CF_CLEARANCE_MIRURO=${CF_CLEARANCE_MIRURO:-}
       - CF_USER_AGENT=${CF_USER_AGENT:-}
@@ -32,13 +32,13 @@ services:
   # The new Reverse Proxy
   proxy:
     image: nginx:alpine
-    container_name: locallink-proxy
+    container_name: anicove-proxy
     ports:
       - "${PROXY_PORT:-3010}:80" # Binds the proxy to your machine's default HTTP web port
     volumes:
       - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - locallink
+      - anicove
     restart: unless-stopped
     deploy:
       resources:

@@ -88,7 +88,7 @@ function attachWhitelistedCloudflareState(headers, targetUrl) {
     const hostname = new URL(targetUrl).hostname.toLowerCase();
     // 1. Check custom authorization header injection if present (for owned zone bypass)
     if (process.env.CF_BYPASS_SECRET) {
-      headers["X-LocalLink-Auth"] = process.env.CF_BYPASS_SECRET;
+      headers["X-Anicove-Auth"] = process.env.CF_BYPASS_SECRET;
     }
 
     // 2. Attach first-party cf_clearance session if explicitly set in environment
