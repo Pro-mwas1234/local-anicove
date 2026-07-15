@@ -44,9 +44,9 @@ export default function Navbar() {
 						className="flex items-center gap-2.5 shrink-0 group"
 						id="navbar-logo"
 					>
-						<img src="/favicon.svg" alt="LocalLink Logo" className="h-9 w-9 rounded object-contain shadow-md group-hover:scale-105 transition-transform" />
+						<img src="/favicon.svg" alt="Anicove Logo" className="h-9 w-9 rounded object-contain shadow-md group-hover:scale-105 transition-transform" />
 						<span className="text-xl font-black tracking-tight text-white hidden sm:inline">
-							LOCAL<span className="text-netflix-red font-light">LINK</span>
+							ANI<span className="text-netflix-red font-light">COVE</span>
 						</span>
 					</Link>
 

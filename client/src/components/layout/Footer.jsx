@@ -32,7 +32,7 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="text-text-primary font-semibold mb-4">LocalLink</h4>
+            <h4 className="text-text-primary font-semibold mb-4">Anicove</h4>
             <p className="text-text-secondary text-sm leading-relaxed">
               Your personal anime streaming companion. Discover, track, and watch your favorite anime all in one place.
             </p>
@@ -41,16 +41,16 @@ export default function Footer() {
         
         <div className="border-t border-surface-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <img src="/favicon.svg" alt="LocalLink Logo" className="h-7 w-7 rounded object-contain shadow" />
+            <img src="/favicon.svg" alt="Anicove Logo" className="h-7 w-7 rounded object-contain shadow" />
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-black tracking-tight text-white">
-                LOCAL<span className="text-netflix-red font-light">LINK</span>
+                ANI<span className="text-netflix-red font-light">COVE</span>
               </span>
               <span className="text-[11px] font-mono text-text-muted bg-surface-card px-1.5 py-0.5 rounded border border-surface-border">v{pkg.version}</span>
             </div>
           </div>
           <p className="text-text-muted text-xs">
-            © {new Date().getFullYear()} LocalLink - Anime Stream. For educational purposes only.
+            © {new Date().getFullYear()} Anicove - Anime Stream. For educational purposes only.
           </p>
         </div>
       </div>

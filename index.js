@@ -75,7 +75,7 @@ if (require.main === module) {
     });
 
     console.log("==========================================");
-    console.log(" Welcome to LocalLink Server! ");
+    console.log(" Welcome to Anicove Server! ");
     console.log("==========================================");
     console.log("Please specify the port to run the server on.");
     console.log("Valid ports are generally between 1024 and 65535.");

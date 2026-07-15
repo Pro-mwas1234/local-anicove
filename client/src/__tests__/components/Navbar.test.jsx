@@ -10,8 +10,7 @@ function renderWithRouter(ui) {
 describe("Navbar", () => {
   it("renders the logo", () => {
     renderWithRouter(<Navbar />);
-    expect(screen.getByText("LOCAL")).toBeInTheDocument();
-    expect(screen.getByText("LINK")).toBeInTheDocument();
+    expect(screen.getByText("ANICOVE")).toBeInTheDocument();
   });
 
   it("renders navigation links", () => {
