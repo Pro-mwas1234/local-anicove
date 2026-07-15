@@ -123,4 +123,6 @@ dist
 
 # LocalLink specifics
 dist-bin/
+package-lock.json
+client/package-lock.json
 client/dist/

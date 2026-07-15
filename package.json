@@ -8,10 +8,11 @@
     "test": "vitest run",
     "start": "node --optimize-for-size index.js",
     "build:client": "cd client && npm install && npm run build",
+    "prestart": "node -e \"const fs=require('fs'); const path=require('path'); const indexPath=path.join('client','dist','index.html'); if(!fs.existsSync(indexPath)){console.log('Client bundle missing; building it now...'); require('child_process').execSync('npm run build:client', { stdio: 'inherit', cwd: process.cwd() });}\"",
     "package": "pkg . --targets node18-linux-x64,node18-win-x64 --out-path dist-bin",
     "postpackage": "node set-icon.js",
     "release": "standard-version",
-    "postinstall": "node -e \"try{const fs=require('fs'),p=require('path'),d=p.join(p.dirname(require.resolve('cycletls/package.json')),'dist');if(process.platform!=='win32'&&fs.existsSync(d))fs.readdirSync(d).forEach(f=>{if(!f.endsWith('.js')&&!f.endsWith('.ts')&&!f.endsWith('.map')&&!f.endsWith('.json'))try{fs.chmodSync(p.join(d,f),0o755)}catch(e){}})}catch(e){}\""
+    "postinstall": "node -e \"try{const fs=require('fs'),p=require('path'),d=p.join(p.dirname(require.resolve('cycletls/package.json')),'dist');if(process.platform!=='win32'&&fs.existsSync(d))fs.readdirSync(d).forEach(f=>{if(!f.endsWith('.js')&&!f.endsWith('.ts')&&!f.endsWith('.map')&&!f.endsWith('.json'))try{fs.chmodSync(p.join(d,f),0o755)}catch(e){}})}catch(e){}\" && node -e \"const fs=require('fs'); const path=require('path'); const indexPath=path.join('client','dist','index.html'); if(!fs.existsSync(indexPath)){console.log('Building client bundle during install...'); require('child_process').execSync('npm run build:client', { stdio: 'inherit', cwd: process.cwd() });}\""
   },
   "pkg": {
     "assets": [
