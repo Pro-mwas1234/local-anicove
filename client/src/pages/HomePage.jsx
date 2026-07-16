@@ -4,6 +4,7 @@ import SwiperCarousel from "../components/home/SwiperCarousel";
 import TopRankingsAside from "../components/home/TopRankingsAside";
 import { getTrending, getPopular, getRecent, getUpcoming, getSpotlight } from "../services/api";
 import { useWatchHistory } from "../hooks/useWatchHistory";
+import { useSettings } from "../contexts/SettingsContext";
 import { Link } from "react-router-dom";
 import { formatTime } from "../utils/helpers";
 import { Flame, Star, Tv, CalendarClock } from "lucide-react";
@@ -16,16 +17,17 @@ export default function HomePage() {
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
   const { getContinueWatching } = useWatchHistory();
+  const { includeAdult } = useSettings();
 
   useEffect(() => {
     const load = async () => {
       try {
         const [spotRes, trendRes, popRes, recRes, upRes] = await Promise.allSettled([
-          getSpotlight(1, 8),
-          getTrending(1, 20),
-          getPopular(1, 20),
-          getRecent(1, 20),
-          getUpcoming(1, 20),
+          getSpotlight(includeAdult),
+          getTrending(1, 20, includeAdult),
+          getPopular(1, 20, includeAdult),
+          getRecent(1, 20, includeAdult),
+          getUpcoming(1, 20, includeAdult),
         ]);
 
         if (spotRes.status === "fulfilled") setSpotlight(spotRes.value.results || []);

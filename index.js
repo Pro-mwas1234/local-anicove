@@ -4,15 +4,23 @@ const path = require("path");
 const fs = require("fs");
 const https = require("https");
 const session = require("express-session");
+const FileStore = require("session-file-store")(session);
 const apiRoutes = require("./src/routes/apiRoutes");
 const proxyController = require("./src/controllers/proxyController");
 
 const app = express();
 app.disable("x-powered-by");
 
-// Session middleware
+// Session middleware — uses file-based storage so sessions survive server restarts
 app.use(
   session({
+    store: new FileStore({
+      path: path.join(__dirname, "sessions"),
+      ttl: 365 * 24 * 60 * 60, // 1 year in seconds (matches maxAge)
+      retries: 0,
+      reapInterval: 86400, // clean up expired sessions every 24h
+      secret: process.env.SESSION_SECRET || "anicove-session-secret-2026", // encrypt session files at rest
+    }),
     secret: process.env.SESSION_SECRET || "anicove-session-secret-2026",
     resave: false,
     saveUninitialized: false,

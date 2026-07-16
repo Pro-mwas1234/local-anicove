@@ -4,6 +4,7 @@ import AnimeGrid from "../components/anime/AnimeGrid";
 import Dropdown from "../components/ui/Dropdown";
 import Pagination from "../components/ui/Pagination";
 import { filterAnime } from "../services/api";
+import { useSettings } from "../contexts/SettingsContext";
 import { GENRES, FORMATS, STATUSES, SEASONS, SORT_OPTIONS, YEARS } from "../utils/constants";
 
 export default function BrowsePage() {
@@ -12,6 +13,8 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
+
+  const { includeAdult } = useSettings();
 
   // Read initial filters from URL params
   const filters = {
@@ -45,6 +48,7 @@ export default function BrowsePage() {
     if (filters.season) params.season = filters.season;
     if (filters.year) params.year = filters.year;
     if (filters.sort) params.sort = filters.sort;
+    if (includeAdult) params.include_adult = "true";
 
     filterAnime(params)
       .then((data) => {

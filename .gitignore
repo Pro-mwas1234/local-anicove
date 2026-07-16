@@ -121,6 +121,9 @@ dist
 # Mac OSX
 .DS_Store
 
+# Session storage (persists across restarts)
+sessions/
+
 # LocalLink specifics
 dist-bin/
 client/dist/

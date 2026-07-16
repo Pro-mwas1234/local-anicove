@@ -132,20 +132,30 @@ import { useAuth } from "../../contexts/AuthContext";	export default function Na
 						<>
 							{isAuthenticated && user ? (
 								<div className="relative" ref={userMenuRef}>
-									<button
-										onClick={() => setUserMenuOpen(!userMenuOpen)}
-										className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/10 transition-colors"
-										aria-label="User menu"
-									>
-										<img
-											src={user.avatar?.medium || user.avatar?.large || "/favicon.svg"}
-											alt={user.name}
-											className="w-8 h-8 rounded-full object-cover border-2 border-white/20 ring-2 ring-transparent hover:ring-netflix-red/50 transition-all"
-										/>
-										<span className="hidden lg:block text-sm font-medium text-text-primary max-w-[100px] truncate">
-											{user.name}
-										</span>
-									</button>
+									<div className="flex items-center gap-1">
+										<Link
+											to="/profile"
+											className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/10 transition-colors group/avatar"
+										>
+											<img
+												src={user.avatar?.medium || user.avatar?.large || "/favicon.svg"}
+												alt={user.name}
+												className="w-8 h-8 rounded-full object-cover border-2 border-white/20 ring-2 ring-transparent group-hover/avatar:ring-netflix-red/50 transition-all"
+											/>
+											<span className="hidden lg:block text-sm font-medium text-text-primary max-w-[100px] truncate group-hover/avatar:text-netflix-red transition-colors">
+												{user.name}
+											</span>
+										</Link>
+										<button
+											onClick={() => setUserMenuOpen(!userMenuOpen)}
+											className="p-1 rounded-full hover:bg-white/10 transition-colors text-text-muted hover:text-text-primary"
+											aria-label="Open user menu"
+										>
+											<svg className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+											</svg>
+										</button>
+									</div>
 
 									{/* Dropdown Menu */}
 									{userMenuOpen && (
@@ -162,6 +172,16 @@ import { useAuth } from "../../contexts/AuthContext";	export default function Na
 
 											{/* Menu items */}
 											<div className="py-1">
+												<Link
+													to="/profile"
+													onClick={() => setUserMenuOpen(false)}
+													className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-base transition-colors"
+												>
+													<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+													</svg>
+													Profile & Settings
+												</Link>
 												<Link
 													to="/my-list"
 													onClick={() => setUserMenuOpen(false)}

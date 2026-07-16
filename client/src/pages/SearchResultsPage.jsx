@@ -4,6 +4,7 @@ import AnimeGrid from "../components/anime/AnimeGrid";
 import Dropdown from "../components/ui/Dropdown";
 import Pagination from "../components/ui/Pagination";
 import { searchAnime } from "../services/api";
+import { useSettings } from "../contexts/SettingsContext";
 import { GENRES, FORMATS, STATUSES, SORT_OPTIONS } from "../utils/constants";
 
 export default function SearchResultsPage() {
@@ -13,6 +14,8 @@ export default function SearchResultsPage() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
+
+  const { includeAdult } = useSettings();
 
   // Filter state from URL params
   const filters = {
@@ -44,6 +47,7 @@ export default function SearchResultsPage() {
       format: filters.format,
       status: filters.status,
       sort: filters.sort,
+      include_adult: includeAdult ? "true" : "",
     })
       .then((data) => {
         if (!cancelled) {

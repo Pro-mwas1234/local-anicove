@@ -24,6 +24,7 @@ export const searchAnime = (query, page = 1, filters = {}) => {
   if (filters.format) params.set("format", filters.format);
   if (filters.status) params.set("status", filters.status);
   if (filters.sort) params.set("sort", filters.sort);
+  if (filters.include_adult) params.set("include_adult", filters.include_adult);
   return fetchJSON(`/search?${params.toString()}`);
 };
 
@@ -38,25 +39,26 @@ export const filterAnime = (params = {}) => {
   return fetchJSON(`/filter?${searchParams.toString()}`);
 };
 
-// Collections
-export const getTrending = (page = 1, perPage = 20) =>
-  fetchJSON(`/trending?page=${page}&per_page=${perPage}`);
+export const getTrending = (page = 1, perPage = 20, includeAdult = false) =>
+  fetchJSON(`/trending?page=${page}&per_page=${perPage}${includeAdult ? "&include_adult=true" : ""}`);
 
-export const getPopular = (page = 1, perPage = 20) =>
-  fetchJSON(`/popular?page=${page}&per_page=${perPage}`);
+export const getPopular = (page = 1, perPage = 20, includeAdult = false) =>
+  fetchJSON(`/popular?page=${page}&per_page=${perPage}${includeAdult ? "&include_adult=true" : ""}`);
 
-export const getUpcoming = (page = 1, perPage = 20) =>
-  fetchJSON(`/upcoming?page=${page}&per_page=${perPage}`);
+export const getUpcoming = (page = 1, perPage = 20, includeAdult = false) =>
+  fetchJSON(`/upcoming?page=${page}&per_page=${perPage}${includeAdult ? "&include_adult=true" : ""}`);
 
-export const getRecent = (page = 1, perPage = 20) =>
-  fetchJSON(`/recent?page=${page}&per_page=${perPage}`);
+export const getRecent = (page = 1, perPage = 20, includeAdult = false) =>
+  fetchJSON(`/recent?page=${page}&per_page=${perPage}${includeAdult ? "&include_adult=true" : ""}`);
 
-export const getSpotlight = (page = 1, perPage = 10) =>
-  fetchJSON(`/spotlight?page=${page}&per_page=${perPage}`);
+export const getSpotlight = (includeAdult = false) =>
+  fetchJSON(`/spotlight${includeAdult ? "?include_adult=true" : ""}`);
 
-export const getSchedule = () => fetchJSON(`/schedule`);
+export const getSchedule = (includeAdult = false) =>
+  fetchJSON(`/schedule${includeAdult ? "?include_adult=true" : ""}`);
 
-export const getWeeklySchedule = () => fetchJSON(`/schedule/week`);
+export const getWeeklySchedule = (includeAdult = false) =>
+  fetchJSON(`/schedule/week${includeAdult ? "?include_adult=true" : ""}`);
 
 // Anime Details
 export const getAnimeInfo = (id) => fetchJSON(`/info/${id}`);

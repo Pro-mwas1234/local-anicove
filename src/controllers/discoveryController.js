@@ -19,9 +19,10 @@ exports.search = async (req, res) => {
     const query = req.query.query;
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.per_page) || 20;
-    const { genre, format, status, sort } = req.query;
+    const { genre, format, status, sort, include_adult } = req.query;
 
-    const args = ["type: ANIME", "isAdult: false"];
+    const args = ["type: ANIME"];
+    if (include_adult !== "true") args.push("isAdult: false");
     const variables = { page, perPage };
     const varTypes = ["$page: Int", "$perPage: Int"];
 
@@ -84,10 +85,11 @@ exports.suggestions = async (req, res) => {
     const query = req.query.query;
     if (!query) return res.status(400).json({ detail: "Query required" });
 
+    const adultFilter = req.query.include_adult === "true" ? "" : "isAdult: false, ";
     const gql = `
         query ($search: String) {
             Page(page: 1, perPage: 8) {
-                media(search: $search, type: ANIME, isAdult: false, sort: SEARCH_MATCH) {
+                media(search: $search, type: ANIME, ${adultFilter}sort: SEARCH_MATCH) {
                     id title { romaji english } coverImage { large } format status startDate { year } episodes
                 }
             }
@@ -121,15 +123,16 @@ exports.filter = async (req, res) => {
       format,
       status,
       sort = "POPULARITY_DESC",
+      include_adult,
     } = req.query;
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.per_page) || 20;
 
     const args = [
       "type: ANIME",
-      "isAdult: false",
       `sort: [${SORT_MAP[sort] || "POPULARITY_DESC"}]`,
     ];
+    if (include_adult !== "true") args.push("isAdult: false");
     const variables = { page, perPage };
     const varTypes = ["$page: Int", "$perPage: Int"];
 
@@ -194,7 +197,8 @@ exports.filter = async (req, res) => {
 
 exports.spotlight = async (req, res) => {
   try {
-    const gql = `query { Page(page: 1, perPage: 10) { media(sort: [TRENDING_DESC, POPULARITY_DESC], type: ANIME, isAdult: false) { ${MEDIA_LIST_FIELDS} } } }`;
+    const adultFilter = req.query.include_adult === "true" ? "" : "isAdult: false, ";
+    const gql = `query { Page(page: 1, perPage: 10) { media(sort: [TRENDING_DESC, POPULARITY_DESC], type: ANIME, ${adultFilter}) { ${MEDIA_LIST_FIELDS} } } }`;
     const data = await anilistQuery(gql);
     res.json({ results: data.Page?.media || [] });
   } catch (err) {

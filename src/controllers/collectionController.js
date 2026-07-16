@@ -1,12 +1,13 @@
 const { anilistQuery, MEDIA_LIST_FIELDS } = require("../utils/anilist");
 
-async function fetchCollection(sortType, statusStr, page, perPage) {
+async function fetchCollection(sortType, statusStr, page, perPage, includeAdult = false) {
   const statusFilter = statusStr ? `, status: ${statusStr}` : "";
+  const adultFilter = includeAdult ? "" : "isAdult: false, ";
   const gql = `
     query ($page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
             pageInfo { total currentPage lastPage hasNextPage perPage }
-            media(type: ANIME, isAdult: false, sort: [${sortType}]${statusFilter}) {
+            media(type: ANIME, ${adultFilter}sort: [${sortType}]${statusFilter}) {
                 ${MEDIA_LIST_FIELDS}
             }
         }
@@ -23,6 +24,8 @@ async function fetchCollection(sortType, statusStr, page, perPage) {
   };
 }
 
+const includeAdult = (req) => req.query.include_adult === "true";
+
 exports.trending = async (req, res) => {
   try {
     res.json(
@@ -31,6 +34,7 @@ exports.trending = async (req, res) => {
         null,
         parseInt(req.query.page) || 1,
         parseInt(req.query.per_page) || 20,
+        includeAdult(req),
       ),
     );
   } catch (err) {
@@ -46,6 +50,7 @@ exports.popular = async (req, res) => {
         null,
         parseInt(req.query.page) || 1,
         parseInt(req.query.per_page) || 20,
+        includeAdult(req),
       ),
     );
   } catch (err) {
@@ -61,6 +66,7 @@ exports.upcoming = async (req, res) => {
         "NOT_YET_RELEASED",
         parseInt(req.query.page) || 1,
         parseInt(req.query.per_page) || 20,
+        includeAdult(req),
       ),
     );
   } catch (err) {
@@ -76,6 +82,7 @@ exports.recent = async (req, res) => {
         "RELEASING",
         parseInt(req.query.page) || 1,
         parseInt(req.query.per_page) || 20,
+        includeAdult(req),
       ),
     );
   } catch (err) {
@@ -101,6 +108,7 @@ exports.schedule = async (req, res) => {
     const pageData = data.Page || {};
     const results = (pageData.airingSchedules || [])
       .filter((item) => {
+        if (req.query.include_adult === "true") return true;
         const m = item.media || {};
         const genres = m.genres || [];
         return !m.isAdult && !genres.includes("Hentai") && !genres.includes("Ecchi");
@@ -166,7 +174,7 @@ exports.scheduleWeek = async (req, res) => {
       schedules.forEach((item) => {
         const entry = item.media || {};
         const genres = entry.genres || [];
-        if (entry.isAdult || genres.includes("Hentai") || genres.includes("Ecchi")) return;
+        if (req.query.include_adult !== "true" && (entry.isAdult || genres.includes("Hentai") || genres.includes("Ecchi"))) return;
         entry.next_episode = item.episode;
         entry.airingAt = item.airingAt;
         entry.timeUntilAiring = item.timeUntilAiring;

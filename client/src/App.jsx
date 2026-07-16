@@ -10,6 +10,7 @@ import AnimeDetailPage from "./pages/AnimeDetailPage";
 import WatchPage from "./pages/WatchPage";
 import SchedulePage from "./pages/SchedulePage";
 import MyListPage from "./pages/MyListPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
@@ -45,6 +46,7 @@ export default function App() {
 					<Route path="/watch/*" element={<WatchPage />} />
 					<Route path="/schedule" element={<SchedulePage />} />
 					<Route path="/my-list" element={<MyListPage />} />
+					<Route path="/profile" element={<ProfilePage />} />
 					<Route path="*" element={<NotFoundPage />} />
 					<Route path="/test" element={<h1 className="text-red-600">test</h1>} />
 				</Routes>

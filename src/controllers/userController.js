@@ -314,12 +314,12 @@ async function getUserStats(req, res) {
               lengths { length count minutesWatched meanScore }
               releaseYears { releaseYear count }
               startYears { startYear count }
-              genres { genre count meanScore timeWatched }
-              tags { tag { name } count meanScore timeWatched }
-              countries { country count meanScore timeWatched }
-              voiceActors { voiceActor { id name { full } image { large } } count meanScore timeWatched }
-              staff { staff { id name { full } image { large } } count meanScore timeWatched }
-              studios { studio { id name } count meanScore timeWatched }
+              genres { genre count meanScore minutesWatched }
+              tags { tag { name } count meanScore minutesWatched }
+              countries { country count meanScore minutesWatched }
+              voiceActors { voiceActor { id name { full } image { large } } count meanScore minutesWatched }
+              staff { staff { id name { full } image { large } } count meanScore minutesWatched }
+              studios { studio { id name } count meanScore minutesWatched }
             }
           }
           favourites { anime { nodes { id title { romaji english } coverImage { large } } } }
