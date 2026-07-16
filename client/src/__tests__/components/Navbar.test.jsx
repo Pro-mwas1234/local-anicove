@@ -1,7 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
+
+// Mock the AuthContext
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: false,
+    loading: false,
+  }),
+}));
 
 function renderWithRouter(ui) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);

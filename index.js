@@ -1,11 +1,29 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
+const https = require("https");
+const session = require("express-session");
 const apiRoutes = require("./src/routes/apiRoutes");
 const proxyController = require("./src/controllers/proxyController");
 
 const app = express();
 app.disable("x-powered-by");
+
+// Session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "anicove-session-secret-2026",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (same as AniList token lifetime)
+      sameSite: "lax",
+    },
+  })
+);
 
 // Serve production build if exists with static asset caching
 app.use(express.static(path.join(__dirname, "client", "dist"), {
@@ -54,8 +72,19 @@ if (require.main === module) {
   const defaultPort = parseInt(process.env.PORT, 10) || 3000;
 
   if (process.env.NO_PROMPT === "true") {
-    const server = app.listen(defaultPort, "0.0.0.0", () => {
-      console.log(`\n✅ Server successfully started on port ${defaultPort} (Non-interactive mode)`);
+    let httpsOptions = null;
+    try {
+      httpsOptions = {
+        key: fs.readFileSync(path.join(__dirname, "localhost.key")),
+        cert: fs.readFileSync(path.join(__dirname, "localhost.crt")),
+      };
+    } catch (e) {
+      console.error("❌ SSL certificate files not found. Run: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -subj \"//CN=localhost\"");
+      process.exit(1);
+    }
+
+    const server = https.createServer(httpsOptions, app).listen(defaultPort, () => {
+      console.log(`\n✅ Server successfully started on https://localhost:${defaultPort} (HTTPS)`);
     });
     server.on("error", (err) => {
       if (err.code === "EADDRINUSE") {

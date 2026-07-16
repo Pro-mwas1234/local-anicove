@@ -5,6 +5,16 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
+function expectFetchCalledWith(url) {
+  expect(global.fetch).toHaveBeenCalledWith(
+    expect.stringContaining(url),
+    expect.objectContaining({
+      credentials: "include",
+      headers: expect.objectContaining({ "Content-Type": "application/json" }),
+    })
+  );
+}
+
 describe("API Service", () => {
   it("searchAnime calls /api/search with query", async () => {
     const mockData = { results: [{ id: 1 }] };
@@ -14,7 +24,7 @@ describe("API Service", () => {
     });
 
     const result = await api.searchAnime("naruto");
-    expect(global.fetch).toHaveBeenCalledWith("/api/search?query=naruto&page=1");
+    expectFetchCalledWith("/api/search?query=naruto&page=1");
     expect(result.results).toHaveLength(1);
   });
 
@@ -26,7 +36,7 @@ describe("API Service", () => {
     });
 
     await api.getSuggestions("test");
-    expect(global.fetch).toHaveBeenCalledWith("/api/suggestions?query=test");
+    expectFetchCalledWith("/api/suggestions?query=test");
   });
 
   it("getTrending calls /api/trending with pagination", async () => {
@@ -37,7 +47,7 @@ describe("API Service", () => {
     });
 
     await api.getTrending(2, 10);
-    expect(global.fetch).toHaveBeenCalledWith("/api/trending?page=2&per_page=10");
+    expectFetchCalledWith("/api/trending?page=2&per_page=10");
   });
 
   it("getAnimeInfo calls /api/info/:id", async () => {
@@ -48,7 +58,7 @@ describe("API Service", () => {
     });
 
     await api.getAnimeInfo(12345);
-    expect(global.fetch).toHaveBeenCalledWith("/api/info/12345");
+    expectFetchCalledWith("/api/info/12345");
   });
 
   it("getEpisodes calls /api/episodes/:id", async () => {
@@ -59,7 +69,7 @@ describe("API Service", () => {
     });
 
     await api.getEpisodes(12345);
-    expect(global.fetch).toHaveBeenCalledWith("/api/episodes/12345");
+    expectFetchCalledWith("/api/episodes/12345");
   });
 
   it("filterAnime constructs correct query string", async () => {
@@ -71,7 +81,8 @@ describe("API Service", () => {
 
     await api.filterAnime({ genre: "Action", sort: "SCORE_DESC" });
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/api/filter?genre=Action&sort=SCORE_DESC")
+      expect.stringContaining("/api/filter?genre=Action&sort=SCORE_DESC"),
+      expect.any(Object)
     );
   });
 

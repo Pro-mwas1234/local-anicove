@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "../search/SearchBar";
-
-export default function Navbar() {
+import { useAuth } from "../../contexts/AuthContext";	export default function Navbar() {
 	const [scrolled, setScrolled] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
+	const [userMenuOpen, setUserMenuOpen] = useState(false);
 	const location = useLocation();
 	const navigate = useNavigate();
+	const { user, login, logout, isAuthenticated, loading } = useAuth();
+	const userMenuRef = useRef(null);
 
 	useEffect(() => {
 		const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -18,6 +20,44 @@ export default function Navbar() {
 		setMobileOpen(false);
 	}, [location.pathname]);
 
+	// Close user menu on outside click
+	useEffect(() => {
+		const handleClickOutside = (e) => {
+			if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+				setUserMenuOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
+
+	// Keyboard shortcut: / or Ctrl+K to focus search
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			// Don't trigger if already typing in an input
+			const tag = document.activeElement?.tagName;
+			if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+			// Ctrl/Cmd + K or / to focus search
+			if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+				e.preventDefault();
+				const searchInput = document.getElementById("search-input");
+				if (searchInput) {
+					searchInput.focus();
+					searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
+				}
+			} else if (e.key === "/" && !e.ctrlKey && !e.metaKey) {
+				e.preventDefault();
+				const searchInput = document.getElementById("search-input");
+				if (searchInput) {
+					searchInput.focus();
+				}
+			}
+		};
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
 	const navLinks = [
 		{ path: "/", label: "Home" },
 		{ path: "/browse", label: "Browse" },
@@ -26,6 +66,16 @@ export default function Navbar() {
 	];
 
 	const isActive = (path) => location.pathname === path;
+
+	const handleLogin = () => {
+		login();
+	};
+
+	const handleLogout = async () => {
+		setUserMenuOpen(false);
+		await logout();
+		navigate("/");
+	};
 
 	return (
 		<nav
@@ -70,12 +120,100 @@ export default function Navbar() {
 					</div>
 				</div>
 
-				{/* Right Section: Search + Hamburger */}
-				<div className="flex items-center gap-4">
+				{/* Right Section: Search + Auth + Hamburger */}
+				<div className="flex items-center gap-3">
 					{/* Search Bar (Desktop) */}
-					<div className="hidden lg:block w-80">
+					<div className="hidden lg:block w-72">
 						<SearchBar />
 					</div>
+
+					{/* AniList Auth */}
+					{!loading && (
+						<>
+							{isAuthenticated && user ? (
+								<div className="relative" ref={userMenuRef}>
+									<button
+										onClick={() => setUserMenuOpen(!userMenuOpen)}
+										className="flex items-center gap-2 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+										aria-label="User menu"
+									>
+										<img
+											src={user.avatar?.medium || user.avatar?.large || "/favicon.svg"}
+											alt={user.name}
+											className="w-8 h-8 rounded-full object-cover border-2 border-white/20 ring-2 ring-transparent hover:ring-netflix-red/50 transition-all"
+										/>
+										<span className="hidden lg:block text-sm font-medium text-text-primary max-w-[100px] truncate">
+											{user.name}
+										</span>
+									</button>
+
+									{/* Dropdown Menu */}
+									{userMenuOpen && (
+										<div className="absolute right-0 mt-2 w-56 bg-surface-deep border border-surface-border rounded-xl shadow-2xl shadow-black/40 overflow-hidden z-50">
+											{/* User info header */}
+											<div className="px-4 py-3 border-b border-surface-border/60">
+												<p className="text-sm font-semibold text-text-primary truncate">
+													{user.name}
+												</p>
+												<p className="text-xs text-text-muted mt-0.5">
+													AniList Account
+												</p>
+											</div>
+
+											{/* Menu items */}
+											<div className="py-1">
+												<Link
+													to="/my-list"
+													onClick={() => setUserMenuOpen(false)}
+													className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-base transition-colors"
+												>
+													<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+													</svg>
+													My Anime List
+												</Link>
+												<a
+													href={`https://anilist.co/user/${user.name}`}
+													target="_blank"
+													rel="noopener noreferrer"
+													onClick={() => setUserMenuOpen(false)}
+													className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-base transition-colors"
+												>
+													<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+														<path d="M6.625 21.75a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75zm5.625 0a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75zm5.625.75a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75z" />
+													</svg>
+													AniList Profile
+												</a>
+											</div>
+
+											{/* Logout */}
+											<div className="border-t border-surface-border/60 py-1">
+												<button
+													onClick={handleLogout}
+													className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-surface-base transition-colors"
+												>
+													<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+													</svg>
+													Sign Out
+												</button>
+											</div>
+										</div>
+									)}
+								</div>
+							) : (
+								<button
+									onClick={handleLogin}
+									className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-netflix-red hover:bg-netflix-red-hover text-white transition-colors shadow-lg shadow-netflix-red/20"
+								>
+									<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+										<path d="M6.625 21.75a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75zm5.625 0a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75zm5.625.75a.75.75 0 00.75-.75V3.375a1.5 1.5 0 00-3 0V21a.75.75 0 00.75.75z" />
+									</svg>
+									Sign in with AniList
+								</button>
+							)}
+						</>
+					)}
 
 					{/* Mobile hamburger */}
 					<button
@@ -129,6 +267,28 @@ export default function Navbar() {
 								{link.label}
 							</Link>
 						))}
+						{/* Mobile user area */}
+						{!loading && isAuthenticated && user && (
+							<>
+								<div className="flex items-center gap-3 px-4 py-3 mt-2 border-t border-surface-border/60 pt-4">
+									<img
+										src={user.avatar?.medium || user.avatar?.large || "/favicon.svg"}
+										alt={user.name}
+										className="w-8 h-8 rounded-full object-cover border border-white/20"
+									/>
+									<span className="text-sm font-medium text-text-primary">{user.name}</span>
+								</div>
+								<button
+									onClick={() => { handleLogout(); setMobileOpen(false); }}
+									className="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-surface-base rounded-lg transition-colors"
+								>
+									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+									</svg>
+									Sign Out
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 			)}

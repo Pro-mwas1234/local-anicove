@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { getStreams, getEpisodes, getAnimeInfo, getSkipTimes, getRecommendations, getTrending, getPopular, getRecent } from "../services/api";
 import VideoPlayer from "../components/player/VideoPlayer";
@@ -6,9 +6,11 @@ import EpisodeList from "../components/anime/EpisodeList";
 import RelatedAnime from "../components/anime/RelatedAnime";
 import TopRankingsAside from "../components/home/TopRankingsAside";
 import { useWatchHistory } from "../hooks/useWatchHistory";
+import { useAuth } from "../contexts/AuthContext";
+import { updateAnimeProgress } from "../services/api";
 import { getTitle, getCoverImage } from "../utils/helpers";
 import { findCurrentEpisodeIndex } from "../utils/episodeMatching";
-import { Star } from "lucide-react";
+import { Star, Home, ChevronRight } from "lucide-react";
 
 export default function WatchPage() {
   const params = useParams();
@@ -31,6 +33,8 @@ export default function WatchPage() {
   const [popular, setPopular] = useState([]);
   const [recent, setRecent] = useState([]);
   const [isTheater, setIsTheater] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const anilistIncrementedRef = useRef(false);
 
   // Info from navigation state
   const animeState = location.state || {};
@@ -170,8 +174,8 @@ export default function WatchPage() {
   const handleTimeUpdate = useCallback(
     ({ currentTime, duration }) => {
       if (animeId && watchId && duration > 0) {
-        // Throttle to every 5 seconds
-        if (Math.round(currentTime) % 5 === 0) {
+        // Throttle to every 10 seconds
+        if (Math.round(currentTime) % 10 === 0) {
           updateProgress({
             animeId,
             episodeId: watchId,
@@ -181,10 +185,18 @@ export default function WatchPage() {
             animeTitle,
             coverImage: animeCover,
           });
+
+          // Also sync with AniList when near the end of an episode (>80% watched)
+          if (isAuthenticated && animeId && currentTime / duration > 0.8 && !anilistIncrementedRef.current) {
+            anilistIncrementedRef.current = true;
+            updateAnimeProgress({ mediaId: animeId, increment: true }).catch(() => {});
+          } else if (currentTime / duration < 0.8) {
+            anilistIncrementedRef.current = false;
+          }
         }
       }
     },
-    [animeId, watchId, episodeNumber, animeTitle, animeCover, updateProgress]
+    [animeId, watchId, episodeNumber, animeTitle, animeCover, updateProgress, isAuthenticated]
   );
 
   const navigateEpisode = useCallback((ep) => {
@@ -218,18 +230,27 @@ export default function WatchPage() {
 
   return (
     <div id="watch-page" className="pt-20 px-4 lg:px-16 pb-16 min-h-screen max-w-7xl mx-auto">
-      {/* Back to anime */}
-      {animeId && (
-        <Link
-          to={`/anime/${animeId}`}
-          className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors mb-6"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to {animeTitle || "Details"}
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-xs text-text-muted mb-6" aria-label="Breadcrumb">
+        <Link to="/" className="flex items-center gap-1 hover:text-text-primary transition-colors">
+          <Home className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Home</span>
         </Link>
-      )}
+        <ChevronRight className="w-3 h-3" />
+        {animeId ? (
+          <>
+            <Link to={`/anime/${animeId}`} className="hover:text-text-primary transition-colors truncate max-w-[150px]">
+              {animeTitle || "Details"}
+            </Link>
+            <ChevronRight className="w-3 h-3 shrink-0" />
+            <span className="text-text-secondary truncate">
+              {episodeNumber ? `Episode ${episodeNumber}` : "Watching"}
+            </span>
+          </>
+        ) : (
+          <span className="text-text-secondary">Watch</span>
+        )}
+      </nav>
 
       {/* Title */}
       <div className="mb-6">

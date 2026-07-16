@@ -1,7 +1,15 @@
 import { API_BASE } from "../utils/constants";
 
-async function fetchJSON(endpoint) {
-  const res = await fetch(`${API_BASE}${endpoint}`);
+async function fetchJSON(endpoint, options = {}) {
+  const { headers: customHeaders, ...restOptions } = options;
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(customHeaders || {}),
+    },
+    ...restOptions,
+  });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API error ${res.status}: ${text}`);
@@ -66,3 +74,58 @@ export const getStreams = (watchId) => fetchJSON(`/${watchId}`);
 
 // Skips
 export const getSkipTimes = (malId, episode) => fetchJSON(`/skips/${malId}/${episode}`);
+
+// === AniList Auth ===
+export const loginAnilist = () => {
+  window.location.href = `${API_BASE}/auth/anilist`;
+};
+
+export const logoutAnilist = () =>
+  fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" }).then(r => r.json());
+
+export const getAuthUser = () =>
+  fetch(`${API_BASE}/auth/me`, { credentials: "include" }).then(r => r.json());
+
+// === AniList User List Management ===
+
+/**
+ * Get the user's AniList anime list.
+ * @param {Object} options - { status, page, perPage }
+ */
+export const getAnimeList = (options = {}) => {
+  const params = new URLSearchParams();
+  if (options.status) params.set("status", options.status);
+  if (options.page) params.set("page", options.page);
+  if (options.perPage) params.set("perPage", options.perPage);
+  return fetchJSON(`/user/animelist?${params.toString()}`);
+};
+
+/**
+ * Save or update an anime list entry on AniList.
+ * @param {Object} data - { mediaId, status, score, progress, notes, ... }
+ */
+export const saveAnimeListEntry = (data) =>
+  fetchJSON("/user/animelist", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+/**
+ * Delete an anime from the user's AniList.
+ */
+export const deleteAnimeListEntry = (mediaId) =>
+  fetchJSON(`/user/animelist/${mediaId}`, { method: "DELETE" });
+
+/**
+ * Update episode progress on AniList.
+ */
+export const updateAnimeProgress = (data) =>
+  fetchJSON("/user/animelist/progress", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+/**
+ * Get user stats from AniList.
+ */
+export const getUserStats = () => fetchJSON("/user/stats");

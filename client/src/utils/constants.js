@@ -23,3 +23,22 @@ export const YEARS = Array.from(
   { length: 30 },
   (_, i) => new Date().getFullYear() + 1 - i
 );
+
+// AniList Media List Statuses for tracking
+export const ANILIST_MEDIA_STATUS = [
+  { value: "CURRENT", label: "Watching", color: "bg-blue-500" },
+  { value: "COMPLETED", label: "Completed", color: "bg-green-500" },
+  { value: "PAUSED", label: "On Hold", color: "bg-yellow-500" },
+  { value: "DROPPED", label: "Dropped", color: "bg-red-500" },
+  { value: "PLANNING", label: "Plan to Watch", color: "bg-gray-500" },
+  { value: "REPEATING", label: "Rewatching", color: "bg-purple-500" },
+];
+
+export const ANILIST_LIST_STATUS_MAP = {
+  CURRENT: "Watching",
+  COMPLETED: "Completed",
+  PAUSED: "On Hold",
+  DROPPED: "Dropped",
+  PLANNING: "Plan to Watch",
+  REPEATING: "Rewatching",
+};

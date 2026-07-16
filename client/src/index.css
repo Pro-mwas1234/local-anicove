@@ -91,6 +91,7 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+  border-radius: inherit;
 }
 
 /* Netflix-style gradient overlays */
@@ -148,6 +149,129 @@ body {
 
 .animate-dropdown-open {
   animation: dropdownOpen 0.15s ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Page Transitions & Route Animations                                        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.35s ease-out both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Toast Notification Animation                                               */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-toast-in {
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Image Blur Load Effect                                                     */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.img-blur-load {
+  position: relative;
+  overflow: hidden;
+}
+
+.img-blur-load img {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.img-blur-load img.loaded {
+  opacity: 1;
+}
+
+.img-blur-load::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-base) 0%,
+    var(--color-surface-raised) 50%,
+    var(--color-surface-base) 100%
+  );
+  animation: shimmer 1.5s infinite;
+  background-size: 200% 200%;
+  z-index: 1;
+}
+
+.img-blur-load img.loaded + .img-blur-load::before,
+.img-blur-load img.loaded ~ .img-blur-load::before {
+  opacity: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Floating Back-to-Top Button                                                */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes backToTopIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes backToTopOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+}
+
+.animate-btt-in {
+  animation: backToTopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-btt-out {
+  animation: backToTopOut 0.2s ease-in both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Scale hover for interactive elements                                       */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */

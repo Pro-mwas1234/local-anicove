@@ -135,9 +135,11 @@ async function nativeStreamFetch(targetUrl, headers = {}, signal = null, method 
   let targetHost = "";
   try { targetHost = new URL(targetUrl).hostname; } catch (e) {}
 
+  let res = null;
+
   // Only try standard undici fetch first if it's NOT a known strict CDN host
   if (!targetHost || !isStrictCdnHost(targetHost)) {
-    let res = await fetch(targetUrl, { headers: mergedHeaders, signal, method }).catch(() => null);
+    res = await fetch(targetUrl, { headers: mergedHeaders, signal, method }).catch(() => null);
     if (res && res.status !== 403 && res.status !== 503) {
       return res;
     }

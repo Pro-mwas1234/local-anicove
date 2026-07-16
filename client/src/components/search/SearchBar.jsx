@@ -90,9 +90,15 @@ export default function SearchBar() {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
             placeholder="Search anime..."
-            className="w-full bg-surface-base/80 border border-surface-border text-text-primary placeholder-text-muted rounded-lg pl-10 pr-4 py-2.5 text-sm outline-none focus:border-text-primary focus:bg-surface-base transition-all"
+            className="w-full bg-surface-base/80 border border-surface-border text-text-primary placeholder-text-muted rounded-lg pl-10 pr-10 py-2.5 text-sm outline-none focus:border-text-primary focus:bg-surface-base transition-all"
             autoComplete="off"
           />
+          {/* Keyboard shortcut hint */}
+          {!loading && (
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono text-text-muted bg-surface-raised rounded border border-surface-border pointer-events-none">
+              <span className="text-[9px]">⌘</span>K
+            </kbd>
+          )}
           {loading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <div className="w-4 h-4 border-2 border-text-muted border-t-transparent rounded-full animate-spin" />

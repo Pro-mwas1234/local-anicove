@@ -1,6 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useMyList } from "../../hooks/useMyList";
+
+// Mock the AuthContext
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({ isAuthenticated: false }),
+}));
 
 const mockAnime = {
   id: 12345,

@@ -5,6 +5,8 @@ const discoveryController = require("../controllers/discoveryController");
 const collectionController = require("../controllers/collectionController");
 const animeController = require("../controllers/animeController");
 const streamController = require("../controllers/streamController");
+const authController = require("../controllers/authController");
+const userController = require("../controllers/userController");
 
 // Discovery & Search Routes
 router.get("/cache-stats", discoveryController.getCacheStats);
@@ -34,5 +36,18 @@ router.get("/sources", streamController.sources);
 router.get("/watch/:provider/:anilist_id/:category/:slug", streamController.watch);
 router.get("/stream/authorize", streamController.authorize);
 router.post("/stream/authorize", streamController.authorize);
+
+// Auth Routes
+router.get("/auth/anilist", authController.authorize);
+router.get("/auth/anilist/callback", authController.callback);
+router.get("/auth/me", authController.me);
+router.post("/auth/logout", authController.logout);
+
+// User / AniList List Routes (require authentication)
+router.get("/user/animelist", userController.requireAuth, userController.getAnimeList);
+router.post("/user/animelist", userController.requireAuth, userController.saveAnimeListEntry);
+router.delete("/user/animelist/:mediaId", userController.requireAuth, userController.deleteAnimeListEntry);
+router.post("/user/animelist/progress", userController.requireAuth, userController.updateProgress);
+router.get("/user/stats", userController.requireAuth, userController.getUserStats);
 
 module.exports = router;
