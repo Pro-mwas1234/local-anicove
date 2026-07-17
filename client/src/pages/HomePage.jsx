@@ -107,7 +107,7 @@ export default function HomePage() {
                       e.stopPropagation();
                       removeFromHistory(item.episodeId);
                     }}
-                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/70 text-white/80 hover:bg-netflix-red hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 backdrop-blur-sm shadow-lg"
+                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/70 text-white/80 hover:bg-netflix-red hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 z-10 backdrop-blur-sm shadow-lg"
                     title="Remove from Continue Watching"
                     aria-label={`Remove ${item.animeTitle} from continue watching`}
                   >

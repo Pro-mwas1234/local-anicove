@@ -6,7 +6,7 @@ services:
     plan: free
     buildCommand: npm install && npm run build:client
     startCommand: npm start
-    healthCheckPath: /api/trending
+    healthCheckPath: /api/health
     autoDeploy: true
     disk:
       name: sessions

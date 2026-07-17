@@ -8,6 +8,9 @@ const streamController = require("../controllers/streamController");
 const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
 
+// Health Check (fast, no external calls — for Render)
+router.get("/health", (req, res) => res.json({ status: "ok", time: Date.now() }));
+
 // Discovery & Search Routes
 router.get("/cache-stats", discoveryController.getCacheStats);
 router.get("/search", discoveryController.search);
