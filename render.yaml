@@ -38,6 +38,6 @@ services:
       - key: MIRURO_PIPE_URL
         value: https://www.miruro.tv/api/secure/pipe
       - key: CF_CLEARANCE_MIRURO
-        sync: false
+        value: ""
       - key: CF_USER_AGENT
-        sync: false
+        value: ""
