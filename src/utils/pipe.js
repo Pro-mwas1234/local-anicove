@@ -1,5 +1,7 @@
 const zlib = require("zlib");
 const util = require("util");
+const { HttpsProxyAgent } = require("https-proxy-agent");
+const { HttpProxyAgent } = require("http-proxy-agent");
 
 const gunzip = util.promisify(zlib.gunzip);
 
@@ -74,17 +76,21 @@ async function fetchUpstreamPipe(encodedReq, headers = {}) {
   if (process.env.NODE_ENV !== "test" && !process.env.VITEST) {
     try {
       const client = await getCycleTLS();
-      const resp = await client(
-        targetUrl,
-        {
-          timeout: 8,
-          ja3: "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-17513,29-23-24,0",
-          userAgent: customHeaders["User-Agent"] || HEADERS["User-Agent"],
-          headers: customHeaders,
-          responseType: "text",
-        },
-        "get"
-      );
+      const cycleOptions = {
+        timeout: 8,
+        ja3: "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-17513,29-23-24,0",
+        userAgent: customHeaders["User-Agent"] || HEADERS["User-Agent"],
+        headers: customHeaders,
+        responseType: "text",
+      };
+
+      // Route through residential proxy if configured (bypasses Cloudflare datacenter blocks)
+      const proxyUrl = getProxyUrl();
+      if (proxyUrl) {
+        cycleOptions.proxy = proxyUrl;
+      }
+
+      const resp = await client(targetUrl, cycleOptions, "get");
       if (resp.status < 500) {
         return {
           ok: resp.status >= 200 && resp.status < 300,
@@ -99,7 +105,84 @@ async function fetchUpstreamPipe(encodedReq, headers = {}) {
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
-  return fetch(targetUrl, { headers: customHeaders, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+  return fetchWithProxy(targetUrl, { headers: customHeaders, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+}
+
+function getProxyUrl() {
+  return process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || null;
+}
+
+function getFetchAgent(targetUrl) {
+  const proxyUrl = getProxyUrl();
+  if (!proxyUrl) return null;
+  try {
+    if (targetUrl.startsWith("https")) {
+      return new HttpsProxyAgent(proxyUrl);
+    }
+    return new HttpProxyAgent(proxyUrl);
+  } catch (e) {
+    console.warn("Failed to create proxy agent:", e.message);
+    return null;
+  }
+}
+
+async function fetchWithProxy(url, options = {}) {
+  const proxyUrl = getProxyUrl();
+  if (!proxyUrl) {
+    return fetch(url, options);
+  }
+
+  // Use Node's https/http module with proxy agent for proxied requests
+  const isHttps = url.startsWith("https");
+  const mod = isHttps ? require("https") : require("http");
+  const agent = getFetchAgent(url);
+
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const req = mod.request(
+      url,
+      {
+        agent,
+        method: options.method || "GET",
+        headers: {
+          ...options.headers,
+          Host: parsedUrl.hostname,
+        },
+        timeout: options.signal ? undefined : 8000,
+      },
+      (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            text: async () => data,
+            headers: {
+              get: (key) => res.headers[key.toLowerCase()] || null,
+            },
+          });
+        });
+      }
+    );
+    req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Request timed out"));
+    });
+
+    if (options.signal) {
+      options.signal.addEventListener("abort", () => {
+        req.destroy();
+        reject(new Error("Request aborted"));
+      }, { once: true });
+    }
+
+    if (options.body) {
+      req.write(options.body);
+    }
+    req.end();
+  });
 }
 
 function getHarvestedHeaders() {
@@ -124,4 +207,7 @@ module.exports = {
   fetchUpstreamPipe,
   getCycleTLS,
   getHarvestedHeaders,
+  getProxyUrl,
+  getFetchAgent,
+  fetchWithProxy,
 };
