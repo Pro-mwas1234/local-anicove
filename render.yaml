@@ -6,8 +6,12 @@ services:
     plan: free
     buildCommand: npm install && npm run build:client
     startCommand: npm start
-    healthCheckPath: /api/anime/trending
+    healthCheckPath: /api/trending
     autoDeploy: true
+    disk:
+      name: sessions
+      mountPath: /var/data/sessions
+      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
@@ -15,6 +19,20 @@ services:
         value: 10000
       - key: NO_PROMPT
         value: true
+      - key: RENDER
+        value: true
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_PATH
+        value: /var/data/sessions
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ANILIST_CLIENT_ID
+        sync: false
+      - key: ANILIST_CLIENT_SECRET
+        sync: false
+      - key: ANILIST_REDIRECT_URI
+        sync: false
       - key: STREAM_WHITELIST_SECRET
         generateValue: true
       - key: MIRURO_PIPE_URL

@@ -36,6 +36,11 @@ export default function WatchPage() {
   const { isAuthenticated } = useAuth();
   const anilistIncrementedRef = useRef(false);
 
+  // Reset the AniList increment ref when episode changes
+  useEffect(() => {
+    anilistIncrementedRef.current = false;
+  }, [watchId]);
+
   // Info from navigation state
   const animeState = location.state || {};
   const animeTitle = animeState.anime ? getTitle(animeState.anime) : "";
@@ -171,6 +176,21 @@ export default function WatchPage() {
     };
   }, [animeId, currentEpIndex, allEpisodes, episodeNumber, animeState.anime]);
 
+  const syncAnilistProgress = useCallback(() => {
+    if (isAuthenticated && animeId && !anilistIncrementedRef.current) {
+      anilistIncrementedRef.current = true;
+      updateAnimeProgress({ mediaId: animeId, increment: true })
+        .then(() => {
+          console.log(`[AniList] Synced progress for anime ${animeId}`);
+        })
+        .catch((err) => {
+          console.error("[AniList] Sync failed:", err);
+          // Allow re-try on failure
+          anilistIncrementedRef.current = false;
+        });
+    }
+  }, [isAuthenticated, animeId]);
+
   const handleTimeUpdate = useCallback(
     ({ currentTime, duration }) => {
       if (animeId && watchId && duration > 0) {
@@ -186,20 +206,25 @@ export default function WatchPage() {
             coverImage: animeCover,
           });
 
-          // Also sync with AniList when near the end of an episode (>80% watched)
-          if (isAuthenticated && animeId && currentTime / duration > 0.8 && !anilistIncrementedRef.current) {
-            anilistIncrementedRef.current = true;
-            updateAnimeProgress({ mediaId: animeId, increment: true }).catch(() => {});
-          } else if (currentTime / duration < 0.8) {
-            anilistIncrementedRef.current = false;
+          // Sync with AniList when near the end of an episode (>90% watched)
+          // This provides an early sync in case the user never reaches the very end
+          if (currentTime / duration > 0.9) {
+            syncAnilistProgress();
           }
         }
       }
     },
-    [animeId, watchId, episodeNumber, animeTitle, animeCover, updateProgress, isAuthenticated]
+    [animeId, watchId, episodeNumber, animeTitle, animeCover, updateProgress, syncAnilistProgress]
   );
 
+  // Sync AniList progress when the video ends
+  const handleEnded = useCallback(() => {
+    syncAnilistProgress();
+  }, [syncAnilistProgress]);
+
   const navigateEpisode = useCallback((ep) => {
+    // Sync current episode progress before navigating to next/prev
+    syncAnilistProgress();
     navigate(`/watch/${ep.id}`, {
       state: {
         anime: animeState.anime,
@@ -207,7 +232,7 @@ export default function WatchPage() {
         episodeTitle: ep.title,
       }
     });
-  }, [navigate, animeState.anime]);
+  }, [navigate, animeState.anime, syncAnilistProgress]);
 
   const hasPrev = currentEpIndex > 0;
   const hasNext = currentEpIndex >= 0 && currentEpIndex < allEpisodes.length - 1;
@@ -296,6 +321,7 @@ export default function WatchPage() {
                     : streamData?.outro
                 }
                 onTimeUpdate={handleTimeUpdate}
+                onEnded={handleEnded}
                 initialTime={initialTime}
                 hasPrev={hasPrev}
                 hasNext={hasNext}

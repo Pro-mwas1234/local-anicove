@@ -56,7 +56,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        refreshUser,
+        isAuthenticated: !!user,
+        unreadNotificationCount: user?.unreadNotificationCount || 0,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

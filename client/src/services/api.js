@@ -131,3 +131,15 @@ export const updateAnimeProgress = (data) =>
  * Get user stats from AniList.
  */
 export const getUserStats = () => fetchJSON("/user/stats");
+
+/**
+ * Get the authenticated user's AniList notifications.
+ * @param {Object} options - { page, perPage, reset }
+ */
+export const getNotifications = (options = {}) => {
+  const params = new URLSearchParams();
+  if (options.page) params.set("page", options.page);
+  if (options.perPage) params.set("per_page", options.perPage);
+  if (options.reset !== undefined) params.set("reset", options.reset);
+  return fetchJSON(`/user/notifications?${params.toString()}`);
+};

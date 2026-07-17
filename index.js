@@ -10,14 +10,23 @@ const proxyController = require("./src/controllers/proxyController");
 
 const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", 1); // Render's proxy forwards HTTPS, trust it for secure cookies
+
+// Detect Render and other production environments
+const isRender = !!process.env.RENDER;
+const isProduction = process.env.NODE_ENV === "production" || isRender;
+
+// Session path: configurable via env var (for Render persistent disk), defaults to ./sessions
+const sessionPath = process.env.SESSION_PATH || path.join(__dirname, "sessions");
 
 // Session middleware — uses file-based storage so sessions survive server restarts
 app.use(
   session({
     store: new FileStore({
-      path: path.join(__dirname, "sessions"),
+      path: sessionPath,
       ttl: 365 * 24 * 60 * 60, // 1 year in seconds (matches maxAge)
-      retries: 0,
+      retries: 3,
+      retryTimeout: 200,
       reapInterval: 86400, // clean up expired sessions every 24h
       secret: process.env.SESSION_SECRET || "anicove-session-secret-2026", // encrypt session files at rest
     }),
@@ -26,9 +35,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction, // Render provides HTTPS at the edge
       maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (same as AniList token lifetime)
-      sameSite: "lax",
+      sameSite: "lax", // lax allows top-level OAuth redirects, unlike none which Safari blocks
     },
   })
 );
@@ -78,22 +87,34 @@ if (require.main === module) {
   };
 
   const defaultPort = parseInt(process.env.PORT, 10) || 3000;
+  const host = isRender ? "0.0.0.0" : "127.0.0.1";
 
   if (process.env.NO_PROMPT === "true") {
     let httpsOptions = null;
-    try {
-      httpsOptions = {
-        key: fs.readFileSync(path.join(__dirname, "localhost.key")),
-        cert: fs.readFileSync(path.join(__dirname, "localhost.crt")),
-      };
-    } catch (e) {
-      console.error("❌ SSL certificate files not found. Run: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -subj \"//CN=localhost\"");
-      process.exit(1);
+    let useHttps = false;
+
+    // On Render, skip HTTPS (Render handles SSL at the edge).
+    // Only use local HTTPS when SSL certs are present.
+    if (!isRender) {
+      try {
+        httpsOptions = {
+          key: fs.readFileSync(path.join(__dirname, "localhost.key")),
+          cert: fs.readFileSync(path.join(__dirname, "localhost.crt")),
+        };
+        useHttps = true;
+      } catch (e) {
+        console.warn("⚠️  SSL certificate files not found — falling back to HTTP.");
+        console.warn("   For local HTTPS, run: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -subj \"//CN=localhost\"");
+      }
     }
 
-    const server = https.createServer(httpsOptions, app).listen(defaultPort, () => {
-      console.log(`\n✅ Server successfully started on https://localhost:${defaultPort} (HTTPS)`);
-    });
+    const server = useHttps
+      ? https.createServer(httpsOptions, app).listen(defaultPort, host)
+      : app.listen(defaultPort, host);
+
+    const protocol = useHttps ? "https" : "http";
+    console.log(`\n✅ Server successfully started on ${protocol}://${host === "0.0.0.0" ? "localhost" : host}:${defaultPort}${useHttps ? " (HTTPS)" : ""}`);
+
     server.on("error", (err) => {
       if (err.code === "EADDRINUSE") {
         console.error(`\n❌ Port ${defaultPort} is already in use by another process!`);

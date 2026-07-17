@@ -335,6 +335,177 @@ async function getUserStats(req, res) {
   }
 }
 
+/**
+ * GET /user/notifications
+ * Fetch the authenticated user's AniList notifications with optional reset.
+ */
+async function getNotifications(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.per_page) || 20;
+    const resetCount = req.query.reset !== "false";
+
+    const query = `
+      query ($page: Int, $perPage: Int, $resetNotificationCount: Boolean) {
+        Page(page: $page, perPage: $perPage) {
+          pageInfo {
+            total
+            currentPage
+            lastPage
+            hasNextPage
+            perPage
+          }
+          notifications(resetNotificationCount: $resetNotificationCount) {
+            ... on AiringNotification {
+              id
+              type
+              createdAt
+              media {
+                id
+                title { romaji english }
+                coverImage { large }
+                episodes
+              }
+              episode
+              contexts
+            }
+            ... on FollowingNotification {
+              id
+              type
+              createdAt
+              userId
+              user { id name avatar { large medium } }
+            }
+            ... on ActivityMessageNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+              message { id message }
+            }
+            ... on ActivityMentionNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+            }
+            ... on ActivityReplyNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+            }
+            ... on ActivityReplySubscribedNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+            }
+            ... on ActivityLikeNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+            }
+            ... on ActivityReplyLikeNotification {
+              id
+              type
+              createdAt
+              activityId
+              user { id name avatar { large medium } }
+            }
+            ... on ThreadCommentMentionNotification {
+              id
+              type
+              createdAt
+              commentId
+              thread { id title }
+              user { id name avatar { large medium } }
+            }
+            ... on ThreadCommentReplyNotification {
+              id
+              type
+              createdAt
+              commentId
+              thread { id title }
+              user { id name avatar { large medium } }
+            }
+            ... on ThreadCommentSubscribedNotification {
+              id
+              type
+              createdAt
+              commentId
+              thread { id title }
+              user { id name avatar { large medium } }
+            }
+            ... on ThreadCommentLikeNotification {
+              id
+              type
+              createdAt
+              commentId
+              thread { id title }
+              user { id name avatar { large medium } }
+            }
+            ... on ThreadLikeNotification {
+              id
+              type
+              createdAt
+              thread { id title }
+              user { id name avatar { large medium } }
+            }
+            ... on MediaDataChangeNotification {
+              id
+              type
+              createdAt
+              media { id title { romaji english } coverImage { large } }
+              reason
+            }
+            ... on MediaMergeNotification {
+              id
+              type
+              createdAt
+              media { id title { romaji english } coverImage { large } }
+              reason
+            }
+            ... on MediaDeletionNotification {
+              id
+              type
+              createdAt
+              deletedMediaTitle
+              context
+              reason
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await anilistAuthQuery(req, query, {
+      page,
+      perPage,
+      resetNotificationCount: resetCount,
+    });
+
+    // If we reset the notification count, also update the session
+    if (resetCount && data.Page?.notifications?.length > 0 && req.session.anilistUser) {
+      req.session.anilistUser.unreadNotificationCount = 0;
+      req.session.save((err) => {
+        if (err) console.error("[User] Failed to save session after notification reset:", err);
+      });
+    }
+
+    res.json(data.Page || { pageInfo: null, notifications: [] });
+  } catch (err) {
+    console.error("[User] Failed to fetch notifications:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   requireAuth,
   getAnimeList,
@@ -342,4 +513,5 @@ module.exports = {
   deleteAnimeListEntry,
   updateProgress,
   getUserStats,
+  getNotifications,
 };

@@ -70,6 +70,30 @@ export default function AnimeCard({ anime, className = "" }) {
 						)}
 					</div>
 				</div>
+
+				{/* AniList progress bar */}
+				{anime.anilistProgress > 0 && (
+					<div className="absolute bottom-0 left-0 right-0 group-hover:opacity-0 transition-opacity duration-200">
+						<div className="h-1 w-full bg-black/60 backdrop-blur-sm">
+							<div
+								className="h-full bg-netflix-red transition-all duration-500"
+								style={{
+									width: `${anime.episodes ? Math.min((anime.anilistProgress / anime.episodes) * 100, 100) : 25}%`,
+								}}
+							/>
+						</div>
+						<div className="flex items-center justify-between px-2 py-0.5 bg-gradient-to-t from-black/80 to-transparent">
+							<span className="text-[10px] font-medium text-white/90 drop-shadow-sm">
+								Ep {anime.anilistProgress}{anime.episodes ? ` / ${anime.episodes}` : ""}
+							</span>
+							{anime.anilistScore > 0 && (
+								<span className="text-[10px] font-bold text-yellow-400 drop-shadow-sm">
+									★ {anime.anilistScore}/10
+								</span>
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Title & Info */}

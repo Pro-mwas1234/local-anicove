@@ -49,5 +49,6 @@ router.post("/user/animelist", userController.requireAuth, userController.saveAn
 router.delete("/user/animelist/:mediaId", userController.requireAuth, userController.deleteAnimeListEntry);
 router.post("/user/animelist/progress", userController.requireAuth, userController.updateProgress);
 router.get("/user/stats", userController.requireAuth, userController.getUserStats);
+router.get("/user/notifications", userController.requireAuth, userController.getNotifications);
 
 module.exports = router;

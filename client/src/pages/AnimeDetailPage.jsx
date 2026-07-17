@@ -75,7 +75,7 @@ export default function AnimeDetailPage() {
     let cancelled = false;
     setEntryLoading(true);
 
-    getAnimeList({ status: "CURRENT,COMPLETED,PAUSED,DROPPED,PLANNING,REPEATING", perPage: 100 })
+    getAnimeList({})
       .then((data) => {
         if (cancelled) return;
         // Search through all lists for our media

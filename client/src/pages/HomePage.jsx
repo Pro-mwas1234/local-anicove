@@ -16,7 +16,7 @@ export default function HomePage() {
   const [recent, setRecent] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { getContinueWatching } = useWatchHistory();
+  const { getContinueWatching, removeFromHistory } = useWatchHistory();
   const { includeAdult } = useSettings();
 
   useEffect(() => {
@@ -61,41 +61,61 @@ export default function HomePage() {
             </h2>
             <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
               {continueWatching.map((item) => (
-                <Link
+                <div
                   key={item.episodeId}
-                  to={`/anime/${item.animeId}`}
-                  className="shrink-0 w-60 bg-surface-base rounded-lg overflow-hidden border border-surface-border hover:border-text-muted transition-colors group"
+                  className="shrink-0 w-60 bg-surface-base rounded-lg overflow-hidden border border-surface-border hover:border-text-muted transition-colors group relative"
                 >
-                  <div className="relative">
-                    <img
-                      src={item.coverImage || "/placeholder.svg"}
-                      alt={item.animeTitle}
-                      className="w-full h-32 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    {/* Progress bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-surface-border">
-                      <div
-                        className="h-full bg-netflix-red"
-                        style={{
-                          width: `${Math.min((item.progress / item.duration) * 100, 100)}%`,
-                        }}
+                  <Link
+                    to={`/anime/${item.animeId}`}
+                    className="block"
+                  >
+                    <div className="relative">
+                      <img
+                        src={item.coverImage || "/placeholder.svg"}
+                        alt={item.animeTitle}
+                        className="w-full h-32 object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-surface-border">
+                        <div
+                          className="h-full bg-netflix-red"
+                          style={{
+                            width: `${Math.min((item.progress / item.duration) * 100, 100)}%`,
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3">
-                    <p className="text-sm font-medium text-text-primary truncate">
-                      {item.animeTitle}
-                    </p>
-                    <p className="text-xs text-text-muted mt-1">
-                      EP {item.episodeNumber} · {formatTime(item.progress)} left
-                    </p>
-                  </div>
-                </Link>
+                    <div className="p-3">
+                      <p className="text-sm font-medium text-text-primary truncate">
+                        {item.animeTitle}
+                      </p>
+                      <p className="text-xs text-text-muted mt-1">
+                        EP {item.episodeNumber} · {formatTime(item.progress)} left
+                      </p>
+                    </div>
+                  </Link>
+
+                  {/* Remove button */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeFromHistory(item.episodeId);
+                    }}
+                    className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/70 text-white/80 hover:bg-netflix-red hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 backdrop-blur-sm shadow-lg"
+                    title="Remove from Continue Watching"
+                    aria-label={`Remove ${item.animeTitle} from continue watching`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
