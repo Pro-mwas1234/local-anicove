@@ -349,7 +349,7 @@ import { getNotifications } from "../../services/api";	export default function N
 												<div className="flex items-center justify-between px-4 py-3 border-b border-surface-border/60">
 													<h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
 													<a
-														href={`https://anilist.co/user/${user.name}/notifications`}
+														href="https://anilist.co/notifications"
 														target="_blank"
 														rel="noopener noreferrer"
 														className="text-xs text-netflix-red hover:text-netflix-red-hover transition-colors"
