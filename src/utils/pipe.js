@@ -4,8 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const http = require("http");
-const { HttpsProxyAgent } = require("https-proxy-agent");
-const { HttpProxyAgent } = require("http-proxy-agent");
+
 
 const gunzip = util.promisify(zlib.gunzip);
 
@@ -115,13 +114,16 @@ function getProxyUrl() {
   return process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || null;
 }
 
-function getFetchAgent(targetUrl) {
+async function getFetchAgent(targetUrl) {
   const proxyUrl = getProxyUrl();
   if (!proxyUrl) return null;
   try {
+    // Dynamic import for ESM-only packages (Vercel serverless compat)
     if (targetUrl.startsWith("https")) {
+      const { HttpsProxyAgent } = await import("https-proxy-agent");
       return new HttpsProxyAgent(proxyUrl);
     }
+    const { HttpProxyAgent } = await import("http-proxy-agent");
     return new HttpProxyAgent(proxyUrl);
   } catch (e) {
     console.warn("Failed to create proxy agent:", e.message);
@@ -138,7 +140,7 @@ async function fetchWithProxy(url, options = {}) {
   // Use Node's https/http module with proxy agent for proxied requests
   const isHttps = url.startsWith("https");
   const mod = isHttps ? https : http;
-  const agent = getFetchAgent(url);
+  const agent = await getFetchAgent(url);
 
   return new Promise((resolve, reject) => {
     const parsedUrl = new URL(url);
