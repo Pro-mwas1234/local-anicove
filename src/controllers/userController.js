@@ -491,12 +491,9 @@ async function getNotifications(req, res) {
       resetNotificationCount: resetCount,
     });
 
-    // If we reset the notification count, also update the session
+    // If we reset the notification count, also update the session (auto-saves on response)
     if (resetCount && data.Page?.notifications?.length > 0 && req.session.anilistUser) {
       req.session.anilistUser.unreadNotificationCount = 0;
-      req.session.save((err) => {
-        if (err) console.error("[User] Failed to save session after notification reset:", err);
-      });
     }
 
     res.json(data.Page || { pageInfo: null, notifications: [] });

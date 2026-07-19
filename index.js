@@ -3,8 +3,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const https = require("https");
-const session = require("express-session");
-const FileStore = require("session-file-store")(session);
+const cookieSession = require("cookie-session");
 const apiRoutes = require("./src/routes/apiRoutes");
 const proxyController = require("./src/controllers/proxyController");
 
@@ -16,29 +15,15 @@ app.set("trust proxy", 1); // Render's proxy forwards HTTPS, trust it for secure
 const isRender = !!process.env.RENDER;
 const isProduction = process.env.NODE_ENV === "production" || isRender;
 
-// Session path: configurable via env var (for Render persistent disk), defaults to ./sessions
-const sessionPath = process.env.SESSION_PATH || path.join(__dirname, "sessions");
-
-// Session middleware — uses file-based storage so sessions survive server restarts
+// Session middleware — uses encrypted cookies (stateless, works on serverless like Vercel)
 app.use(
-  session({
-    store: new FileStore({
-      path: sessionPath,
-      ttl: 365 * 24 * 60 * 60, // 1 year in seconds (matches maxAge)
-      retries: 3,
-      retryTimeout: 200,
-      reapInterval: 86400, // clean up expired sessions every 24h
-      secret: process.env.SESSION_SECRET || "anicove-session-secret-2026", // encrypt session files at rest
-    }),
+  cookieSession({
+    name: "anicove-session",
     secret: process.env.SESSION_SECRET || "anicove-session-secret-2026",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: isProduction, // Render provides HTTPS at the edge
-      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (same as AniList token lifetime)
-      sameSite: "lax", // lax allows top-level OAuth redirects, unlike none which Safari blocks
-    },
+    httpOnly: true,
+    secure: isProduction,
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year (matches AniList token lifetime)
+    sameSite: "lax", // lax allows top-level OAuth redirects
   })
 );
 

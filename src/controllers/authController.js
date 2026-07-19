@@ -134,26 +134,21 @@ async function callback(req, res) {
       return res.redirect("/?auth_error=no_user");
     }
 
-    // Store in session
+    // Store in session (cookie-session auto-saves on response)
+    // Truncate about field to stay well under the ~4KB cookie limit
     req.session.anilistToken = accessToken;
     req.session.anilistUser = {
       id: viewer.id,
       name: viewer.name,
       avatar: viewer.avatar,
       bannerImage: viewer.bannerImage,
-      about: viewer.about,
+      about: viewer.about ? viewer.about.substring(0, 500) : null,
       stats: viewer.statistics,
       unreadNotificationCount: viewer.unreadNotificationCount,
       profileColor: viewer.options?.profileColor || null,
     };
 
-    req.session.save((err) => {
-      if (err) {
-        console.error("[Auth] Session save error:", err);
-        return res.redirect("/?auth_error=session_failed");
-      }
-      res.redirect("/?auth_success=1");
-    });
+    res.redirect("/?auth_success=1");
   } catch (err) {
     console.error("[Auth] Callback error:", err);
     res.redirect("/?auth_error=server_error");
@@ -176,14 +171,9 @@ function me(req, res) {
  * Destroy the session and log the user out.
  */
 function logout(req, res) {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("[Auth] Logout error:", err);
-      return res.status(500).json({ error: "Logout failed" });
-    }
-    res.clearCookie("connect.sid");
-    res.json({ success: true });
-  });
+  // Clear session — cookie-session will set a delete cookie on response
+  req.session = null;
+  res.json({ success: true });
 }
 
 module.exports = {
