@@ -1,5 +1,9 @@
 const zlib = require("zlib");
 const util = require("util");
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const http = require("http");
 const { HttpsProxyAgent } = require("https-proxy-agent");
 const { HttpProxyAgent } = require("http-proxy-agent");
 
@@ -45,8 +49,6 @@ async function getCycleTLS() {
   if (!cycleTLSInstance) {
     if (process.platform !== "win32") {
       try {
-        const fs = require("fs");
-        const path = require("path");
         const distDir = path.join(path.dirname(require.resolve("cycletls/package.json")), "dist");
         if (fs.existsSync(distDir)) {
           fs.readdirSync(distDir).forEach((f) => {
@@ -57,7 +59,8 @@ async function getCycleTLS() {
         }
       } catch (e) {}
     }
-    const initCycleTLS = require("cycletls");
+    const cycleModule = await import("cycletls");
+    const initCycleTLS = cycleModule.default || cycleModule;
     cycleTLSInstance = await initCycleTLS();
   }
   return cycleTLSInstance;
@@ -134,7 +137,7 @@ async function fetchWithProxy(url, options = {}) {
 
   // Use Node's https/http module with proxy agent for proxied requests
   const isHttps = url.startsWith("https");
-  const mod = isHttps ? require("https") : require("http");
+  const mod = isHttps ? https : http;
   const agent = getFetchAgent(url);
 
   return new Promise((resolve, reject) => {
