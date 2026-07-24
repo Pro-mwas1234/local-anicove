@@ -25,6 +25,15 @@ let currentIndex = 0;
 let lastRefreshTime = 0;
 let refreshInProgress = false;
 
+/** Shared helper — fires a pool refresh if one isn't already running */
+function _startRefresh() {
+  if (refreshInProgress) return;
+  refreshInProgress = true;
+  refreshPool()
+    .catch((err) => console.error("[PROXY-POOL] Refresh error:", err.message))
+    .finally(() => { refreshInProgress = false; });
+}
+
 /**
  * Returns a working proxy URL by rotating through a validated pool.
  * Falls back to null if no proxy is available.
@@ -34,14 +43,7 @@ async function getWorkingProxy() {
 
   // Refresh if pool is empty or stale (fire-and-forget — never block)
   if (proxyPool.length === 0 || now - lastRefreshTime > REFRESH_INTERVAL) {
-    if (!refreshInProgress) {
-      refreshInProgress = true;
-      refreshPool()
-        .catch((err) => console.error("[PROXY-POOL] Refresh error:", err.message))
-        .finally(() => {
-          refreshInProgress = false;
-        });
-    }
+    _startRefresh();
   }
 
   if (proxyPool.length > 0) {
@@ -141,10 +143,8 @@ async function fetchProxySource(url) {
 
     text.split("\n").forEach((line) => {
       const trimmed = line.trim();
-      // Accept various proxy formats
       if (!trimmed || trimmed.startsWith("#")) return;
 
-      // Handle format: protocol://ip:port
       if (trimmed.includes("://")) {
         const proto = trimmed.split("://")[0].toLowerCase();
         if (["http", "https", "socks5", "socks4", "socks"].includes(proto)) {
@@ -153,13 +153,11 @@ async function fetchProxySource(url) {
         return;
       }
 
-      // Handle format: ip:port (treat as HTTP)
       if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/.test(trimmed)) {
         proxies.push(`http://${trimmed}`);
         return;
       }
 
-      // Handle format: host:port (not an IP, still try as HTTP)
       if (trimmed.includes(":") && !trimmed.includes(" ")) {
         proxies.push(`http://${trimmed}`);
       }
@@ -179,7 +177,6 @@ async function validateProxies(proxies) {
   const validated = [];
   const batchSize = 10;
 
-  // Shuffle then take only the first MAX_CANDIDATES to avoid 5k+ validation on cold start
   const shuffled = proxies.sort(() => Math.random() - 0.5).slice(0, MAX_CANDIDATES);
 
   for (let i = 0; i < shuffled.length && validated.length < MAX_POOL_SIZE; i += batchSize) {
@@ -202,10 +199,8 @@ async function validateProxies(proxies) {
 async function testProxy(proxyUrl) {
   try {
     const agent = await getProxyAgent(proxyUrl, VALIDATION_URL);
-
     if (!agent) return null;
 
-    // Use Node's https/http module directly for reliable proxy testing
     const isHttpsTarget = VALIDATION_URL.startsWith("https");
     const mod = isHttpsTarget ? require("https") : require("http");
     const parsedUrl = new URL(VALIDATION_URL);
@@ -217,37 +212,25 @@ async function testProxy(proxyUrl) {
           agent,
           method: "HEAD",
           timeout: VALIDATION_TIMEOUT - 500,
-          headers: {
-            Host: parsedUrl.hostname,
-          },
+          headers: { Host: parsedUrl.hostname },
         },
         (res) => {
           resolve({ ok: true, status: res.statusCode });
           res.resume();
         }
       );
-
       req.on("error", () => resolve({ ok: false }));
-      req.on("timeout", () => {
-        req.destroy();
-        resolve({ ok: false });
-      });
+      req.on("timeout", () => { req.destroy(); resolve({ ok: false }); });
       req.end();
     });
 
-    if (result.ok) {
-      return proxyUrl;
-    }
+    if (result.ok) return proxyUrl;
   } catch {
     // Proxy failed validation
   }
-
   return null;
 }
 
-/**
- * Returns pool stats for debugging.
- */
 function getPoolStats() {
   return {
     size: proxyPool.length,
@@ -256,6 +239,10 @@ function getPoolStats() {
     refreshInProgress,
   };
 }
+
+// Fire warm-up refresh immediately on module load so proxies are ready
+// by the time the first request arrives (Vercel cold starts)
+_startRefresh();
 
 module.exports = {
   getWorkingProxy,
