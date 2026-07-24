@@ -72,7 +72,7 @@ async function getProxyAgent(proxyUrl, targetUrl) {
   if (!proxyUrl) return null;
 
   try {
-    if (proxyUrl.startsWith("socks5") || proxyUrl.startsWith("socks4")) {
+    if (proxyUrl.startsWith("socks5") || proxyUrl.startsWith("socks4") || proxyUrl.startsWith("socks://")) {
       const { SocksProxyAgent } = await import("socks-proxy-agent");
       return new SocksProxyAgent(proxyUrl);
     }
