@@ -15,15 +15,15 @@ const PROXY_SOURCES = [
 
 // Validation target — lightweight and reliable
 const VALIDATION_URL = "https://www.google.com";
-const VALIDATION_TIMEOUT = 6000;
-const MAX_POOL_SIZE = 30;
+const VALIDATION_TIMEOUT = 4000;
+const MAX_POOL_SIZE = 15;
+const MAX_CANDIDATES = 100;
 const REFRESH_INTERVAL = 4 * 60 * 1000; // Every 4 minutes
 
 let proxyPool = [];
 let currentIndex = 0;
 let lastRefreshTime = 0;
 let refreshInProgress = false;
-let consecutiveFailures = 0;
 
 /**
  * Returns a working proxy URL by rotating through a validated pool.
@@ -32,7 +32,7 @@ let consecutiveFailures = 0;
 async function getWorkingProxy() {
   const now = Date.now();
 
-  // Refresh if pool is empty or stale
+  // Refresh if pool is empty or stale (fire-and-forget — never block)
   if (proxyPool.length === 0 || now - lastRefreshTime > REFRESH_INTERVAL) {
     if (!refreshInProgress) {
       refreshInProgress = true;
@@ -42,24 +42,14 @@ async function getWorkingProxy() {
           refreshInProgress = false;
         });
     }
-
-    // If pool was empty, wait briefly for first refresh (max 4s)
-    if (proxyPool.length === 0 && refreshInProgress) {
-      for (let i = 0; i < 8; i++) {
-        await sleep(500);
-        if (proxyPool.length > 0) break;
-      }
-    }
   }
 
   if (proxyPool.length > 0) {
-    consecutiveFailures = 0;
     const proxy = proxyPool[currentIndex % proxyPool.length];
     currentIndex++;
     return proxy;
   }
 
-  consecutiveFailures++;
   return null;
 }
 
@@ -189,8 +179,8 @@ async function validateProxies(proxies) {
   const validated = [];
   const batchSize = 10;
 
-  // Shuffle to get a diverse set
-  const shuffled = proxies.sort(() => Math.random() - 0.5);
+  // Shuffle then take only the first MAX_CANDIDATES to avoid 5k+ validation on cold start
+  const shuffled = proxies.sort(() => Math.random() - 0.5).slice(0, MAX_CANDIDATES);
 
   for (let i = 0; i < shuffled.length && validated.length < MAX_POOL_SIZE; i += batchSize) {
     const batch = shuffled.slice(i, i + batchSize);
@@ -255,10 +245,6 @@ async function testProxy(proxyUrl) {
   return null;
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 /**
  * Returns pool stats for debugging.
  */
@@ -267,7 +253,6 @@ function getPoolStats() {
     size: proxyPool.length,
     currentIndex,
     lastRefresh: lastRefreshTime ? new Date(lastRefreshTime).toISOString() : "never",
-    consecutiveFailures,
     refreshInProgress,
   };
 }
