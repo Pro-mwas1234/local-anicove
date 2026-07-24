@@ -121,7 +121,7 @@ function getProxyUrlAsync() {
   return proxyRotator.getWorkingProxy();
 }
 
-function getFetchAgent(targetUrl, proxyUrl) {
+async function getFetchAgent(targetUrl, proxyUrl) {
   const url = proxyUrl || getProxyUrl();
   if (!url) return null;
   return proxyRotator.getProxyAgent(url, targetUrl);
@@ -144,7 +144,7 @@ async function fetchWithProxy(url, options = {}) {
   // Use Node's https/http module with proxy agent for proxied requests
   const isHttps = url.startsWith("https");
   const mod = isHttps ? https : http;
-  const agent = getFetchAgent(url, proxyUrl);
+  const agent = await getFetchAgent(url, proxyUrl);
 
   if (!agent) return fetch(url, options);
 

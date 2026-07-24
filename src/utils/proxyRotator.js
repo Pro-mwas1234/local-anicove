@@ -1,7 +1,3 @@
-const { HttpProxyAgent } = require("http-proxy-agent");
-const { HttpsProxyAgent } = require("https-proxy-agent");
-const { SocksProxyAgent } = require("socks-proxy-agent");
-
 // Free proxy list sources (multiple for redundancy)
 const PROXY_SOURCES = [
   // ProxyScrape v4
@@ -70,17 +66,21 @@ async function getWorkingProxy() {
 /**
  * Returns a prebuilt proxy agent for the given target URL.
  * Handles HTTP, HTTPS, and SOCKS protocols.
+ * Uses dynamic import() for Vercel serverless ESM compatibility.
  */
-function getProxyAgent(proxyUrl, targetUrl) {
+async function getProxyAgent(proxyUrl, targetUrl) {
   if (!proxyUrl) return null;
 
   try {
     if (proxyUrl.startsWith("socks5") || proxyUrl.startsWith("socks4")) {
+      const { SocksProxyAgent } = await import("socks-proxy-agent");
       return new SocksProxyAgent(proxyUrl);
     }
     if (targetUrl && targetUrl.startsWith("https")) {
+      const { HttpsProxyAgent } = await import("https-proxy-agent");
       return new HttpsProxyAgent(proxyUrl);
     }
+    const { HttpProxyAgent } = await import("http-proxy-agent");
     return new HttpProxyAgent(proxyUrl);
   } catch (e) {
     console.warn("[PROXY-POOL] Failed to create agent:", e.message);
@@ -211,7 +211,7 @@ async function validateProxies(proxies) {
 
 async function testProxy(proxyUrl) {
   try {
-    const agent = getProxyAgent(proxyUrl, VALIDATION_URL);
+    const agent = await getProxyAgent(proxyUrl, VALIDATION_URL);
 
     if (!agent) return null;
 
