@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const http = require("http");
-
+const proxyRotator = require("./proxyRotator");
 
 const gunzip = util.promisify(zlib.gunzip);
 
@@ -114,25 +114,29 @@ function getProxyUrl() {
   return process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || null;
 }
 
-async function getFetchAgent(targetUrl) {
-  const proxyUrl = getProxyUrl();
-  if (!proxyUrl) return null;
-  try {
-    // Dynamic import for ESM-only packages (Vercel serverless compat)
-    if (targetUrl.startsWith("https")) {
-      const { HttpsProxyAgent } = await import("https-proxy-agent");
-      return new HttpsProxyAgent(proxyUrl);
-    }
-    const { HttpProxyAgent } = await import("http-proxy-agent");
-    return new HttpProxyAgent(proxyUrl);
-  } catch (e) {
-    console.warn("Failed to create proxy agent:", e.message);
-    return null;
-  }
+function getProxyUrlAsync() {
+  const staticProxy = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  if (staticProxy) return Promise.resolve(staticProxy);
+  // Fall back to free proxy rotator when no static proxy is configured
+  return proxyRotator.getWorkingProxy();
+}
+
+function getFetchAgent(targetUrl, proxyUrl) {
+  const url = proxyUrl || getProxyUrl();
+  if (!url) return null;
+  return proxyRotator.getProxyAgent(url, targetUrl);
+}
 }
 
 async function fetchWithProxy(url, options = {}) {
-  const proxyUrl = getProxyUrl();
+  let proxyUrl = getProxyUrl();
+  
+  // If no static proxy, try rotator
+  if (!proxyUrl && (!options._proxyTried)) {
+    proxyUrl = await getProxyUrlAsync();
+    options = { ...options, _proxyTried: true };
+  }
+  
   if (!proxyUrl) {
     return fetch(url, options);
   }
@@ -140,7 +144,9 @@ async function fetchWithProxy(url, options = {}) {
   // Use Node's https/http module with proxy agent for proxied requests
   const isHttps = url.startsWith("https");
   const mod = isHttps ? https : http;
-  const agent = await getFetchAgent(url);
+  const agent = getFetchAgent(url, proxyUrl);
+
+  if (!agent) return fetch(url, options);
 
   return new Promise((resolve, reject) => {
     const parsedUrl = new URL(url);
