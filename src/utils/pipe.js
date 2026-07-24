@@ -126,7 +126,6 @@ async function getFetchAgent(targetUrl, proxyUrl) {
   if (!url) return null;
   return proxyRotator.getProxyAgent(url, targetUrl);
 }
-}
 
 async function fetchWithProxy(url, options = {}) {
   let proxyUrl = getProxyUrl();
