@@ -86,8 +86,11 @@ async function fetchUpstreamPipe(encodedReq, headers = {}) {
         responseType: "text",
       };
 
-      // Route through residential proxy if configured (bypasses Cloudflare datacenter blocks)
-      const proxyUrl = getProxyUrl();
+      // Route through residential proxy or free proxy rotator (bypasses Cloudflare datacenter blocks)
+      let proxyUrl = getProxyUrl();
+      if (!proxyUrl) {
+        proxyUrl = await proxyRotator.getWorkingProxy();
+      }
       if (proxyUrl) {
         cycleOptions.proxy = proxyUrl;
       }
